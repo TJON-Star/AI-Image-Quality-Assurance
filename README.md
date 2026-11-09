@@ -1,6 +1,6 @@
 # AI-Image-Quality-Assurance
 
-Portfolio of **Taiwo Johnson** (Lagos, Nigeria) — AI image identification, labelling and quality assurance for computer-vision datasets.
+Portfolio of **Taiwo Johnson** - AI image identification, labelling and quality assurance for computer-vision datasets.
 
 ## 👉 Live Portfolio
 
