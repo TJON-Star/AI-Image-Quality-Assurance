@@ -4,7 +4,9 @@ A browser-based workspace for reviewing image-identification outputs and documen
 
 ## Open the workbench
 
-Open [index.html](index.html) in a modern browser. The current version runs locally in the browser. It does not call an AI model, upload images, or send review data to a server.
+Download the [workbench HTML file](https://raw.githubusercontent.com/TJON-Star/AI-Image-Quality-Assurance/main/evaluation-workbench/index.html) to your computer, then open the downloaded file in a modern browser. You can also download the repository and open `evaluation-workbench/index.html` locally.
+
+GitHub's code viewer displays the HTML source. It does not run the workbench inside the repository page. The current prototype runs locally in your browser. It does not call an AI model, upload images, or send review data to a server.
 
 ## What it supports
 
