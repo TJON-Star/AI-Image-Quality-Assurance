@@ -7,7 +7,7 @@ const root = process.cwd();
 const htmlPath = join(root, "evaluation-workbench", "index.html");
 const html = await readFile(htmlPath, "utf8");
 
-const scriptBlocks = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+const scriptBlocks = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 assert.ok(scriptBlocks.length > 0, "Workbench must contain its application script.");
 for (const [index, match] of scriptBlocks.entries()) {
   new vm.Script(match[1], { filename: `evaluation-workbench-inline-${index + 1}.js` });
@@ -36,7 +36,7 @@ assert.ok(session.assessment && typeof session.assessment === "object");
 
 for (const csvName of ["image-review-register.csv", "object-review-register.csv"]) {
   const csv = await readFile(join(root, "evaluation-workbench", "templates", csvName), "utf8");
-  const header = csv.split(/\\r?\\n/, 1)[0];
+  const header = csv.split(/\r?\n/, 1)[0];
   assert.ok(header && header.includes("image_id"), `${csvName} must include an image identifier column.`);
 }
 
