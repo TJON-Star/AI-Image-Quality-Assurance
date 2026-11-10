@@ -57,7 +57,7 @@ The repository now includes dedicated written case studies for domain-specific v
 
 Download the [AI Image Evaluation Workbench](https://raw.githubusercontent.com/TJON-Star/AI-Image-Quality-Assurance/main/evaluation-workbench/index.html) and open it in a modern browser to load a local image, mark object regions, compare AI-provided and reviewer-drawn boxes, record prediction decisions, log visual quality findings, rate image-level criteria, and export JSON or CSV review records.
 
-The workbench does not run AI inference. Predictions and confidence values must be copied from the selected AI tool. Review data remains in the browser until exported.
+The workbench does not run AI inference. Predictions and confidence values must be copied from the selected AI tool. Review data remains in the browser until exported. Saved JSON sessions can be imported later after reloading the same source image.
 
 - [Workbench instructions](evaluation-workbench/README.md)
 - [Defect taxonomy](evaluation-workbench/defect-taxonomy.md)
