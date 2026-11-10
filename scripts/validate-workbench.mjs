@@ -57,7 +57,8 @@ const checkedExtensions = new Set([".md", ".html", ".json", ".csv", ".yml", ".ya
 const textFiles = (await walk(root)).filter(path => checkedExtensions.has(extname(path).toLowerCase()));
 for (const path of textFiles) {
   const content = await readFile(path, "utf8");
-  assert.ok(!content.includes("—"), `Unexpected em dash in ${path}`);
+  const forbiddenPunctuation = String.fromCharCode(0x2014);
+  assert.ok(!content.includes(forbiddenPunctuation), `Unexpected forbidden punctuation in ${path}`);
 }
 
 console.log("Workbench validation passed.");
