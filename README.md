@@ -51,3 +51,15 @@ The repository now includes dedicated written case studies for domain-specific v
 
 - [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md): comprehensive retail image quality review and assessment criteria.
 - [Case Studies Index](case-studies/README.md): overview of the retail and urban traffic assessment tracks.
+
+## Evaluation workbench
+
+Use the browser-based [AI Image Evaluation Workbench](evaluation-workbench/index.html) to load a local image, mark object regions, record model predictions and reviewer decisions, log visual quality findings, rate image-level criteria, and export JSON or CSV review records.
+
+The workbench does not run AI inference. Predictions and confidence values must be copied from the selected AI tool. Review data remains in the browser until exported.
+
+- [Workbench instructions](evaluation-workbench/README.md)
+- [Defect taxonomy](evaluation-workbench/defect-taxonomy.md)
+- [Annotation and review guide](evaluation-workbench/annotation-guide.md)
+- [Tools and capabilities](tools-and-workflows/README.md)
+- [Assessment report template](reports/assessment-report-template.md)
