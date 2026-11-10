@@ -56,7 +56,7 @@ A finding should include the region, what is visible, why it matters, severity, 
 
 ## 5. Scoring
 
-Use the following 1 to 5 scale for image-level criteria:
+Use the following 1 to 5 scale for image-level criteria. Available workbench ratings include visibility, edge integrity, sharpness, object separation, text legibility, instruction adherence, structure and alignment, shape and packaging integrity, and pattern consistency. Use only criteria relevant to the image and stated task. Score instruction adherence only when the original prompt or instruction is available:
 
 | Score | Meaning |
 |---|---|
