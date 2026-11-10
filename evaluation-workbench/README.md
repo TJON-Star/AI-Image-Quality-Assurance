@@ -18,7 +18,8 @@ GitHub's code viewer displays the HTML source. It does not run the workbench ins
 - Record an individual model confidence value when it is available from the AI tool.
 - Classify review outcomes such as accepted, incorrect label, poor localization, duplicate prediction, false positive, missed object, or uncertain.
 - Record image-quality issues such as blur, edge artifacts, text legibility, compression, occlusion, and object separation.
-- Rate image-level quality criteria on a 1 to 5 scale.
+- Rate image-level quality criteria on a 1 to 5 scale: visibility, edge integrity, sharpness, object separation, text legibility, instruction adherence, structure and alignment, shape and packaging integrity, and pattern consistency.
+- Leave criteria as not assessed when they do not apply or the available evidence is insufficient. Instruction-adherence scoring requires the original prompt or task instruction.
 - Export the review session as JSON or CSV and print a summary.
 
 ## Review workflow
