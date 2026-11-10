@@ -44,3 +44,10 @@ Have an image identification or dataset QA project? Send me a message through th
 ---
 
 Built with TanStack Start, React, TypeScript and Tailwind CSS, with Lovable Cloud powering the contact form and AI identification.
+
+## Case study documentation
+
+The repository now includes dedicated written case studies for domain-specific visual assessment.
+
+- [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md) — comprehensive retail image quality review and assessment criteria.
+- [Case Studies Index](case-studies/README.md) — overview of the retail and urban traffic assessment tracks.
