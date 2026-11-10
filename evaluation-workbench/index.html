@@ -505,7 +505,7 @@ $("exportJson").addEventListener("click",()=>{
 $("exportCsv").addEventListener("click",()=>{
   if(!sourceImage||records.length===0)return;
   const columns=["imageId","id","type","predictedLabel","reviewedLabel","confidencePercent","disposition","defectCode","category","severity","model_box_x_min_px","model_box_y_min_px","model_box_x_max_px","model_box_y_max_px","review_box_x_min_px","review_box_y_min_px","review_box_x_max_px","review_box_y_max_px","note","createdAt"];
-  const quote=value=>{let s=String(value??"");if(/^[\\s]*[=+\\-@]/.test(s))s="\'"+s;return '"' + s.replace(/"/g,'""') + '"' ;};
+  const quote=value=>{let s=String(value??"");const first=s.trimStart()[0];if(first&&"=+-@".includes(first))s="\'"+s;return '"' + s.replace(/"/g,'""') + '"' ;};
   const rows=[columns.map(quote).join(",")];
   records.forEach(r=>{
     const b=r.reviewerBox||r.box||{};
