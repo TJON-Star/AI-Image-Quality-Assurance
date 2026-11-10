@@ -10,11 +10,11 @@ Hands-on portfolio showcasing practical use of AI image-identification and compu
 
 ## Projects
 
-Case studies in urban street object detection, retail shelf product recognition, wildlife camera-trap identification and produce defect detection — each shown with the bounding boxes and labels I reviewed.
+Case studies in urban street object detection, retail shelf product recognition, wildlife camera-trap identification and produce defect detection: each shown with the bounding boxes and labels I reviewed.
 
 [![Projects page with annotated case studies](https://pixel-clue-gallery.lovable.app/__l5e/assets-v1/ad367a43-f6d2-437c-ae6f-df2b6a028096/portfolio-projects.jpg)](https://pixel-clue-gallery.lovable.app/projects)
 
-## Try AI — live demo
+## Try AI: live demo
 
 Upload any photo and an AI model identifies the objects in it and draws a labelled box around each one. Below, it found a giraffe, two zebras and three trees in a wildlife photo.
 
@@ -49,5 +49,5 @@ Built with TanStack Start, React, TypeScript and Tailwind CSS, with Lovable Clou
 
 The repository now includes dedicated written case studies for domain-specific visual assessment.
 
-- [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md) — comprehensive retail image quality review and assessment criteria.
-- [Case Studies Index](case-studies/README.md) — overview of the retail and urban traffic assessment tracks.
+- [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md): comprehensive retail image quality review and assessment criteria.
+- [Case Studies Index](case-studies/README.md): overview of the retail and urban traffic assessment tracks.
