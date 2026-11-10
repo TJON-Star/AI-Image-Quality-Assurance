@@ -32,7 +32,11 @@ State what the image or model output is being assessed for.
 | Edge integrity | | | |
 | Sharpness | | | |
 | Object separation | | | |
-| Text legibility | | | |
+| Text legibility | | |
+| Instruction adherence | | |
+| Structure and alignment | | |
+| Shape and packaging integrity | | |
+| Pattern consistency | | | |
 | Repeated patterns | | | |
 | Other | | | |
 
