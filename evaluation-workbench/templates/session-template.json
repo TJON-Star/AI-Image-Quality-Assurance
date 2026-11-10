@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "assessment": {
+    "imageId": null,
+    "domain": null,
+    "sourceFilename": null,
+    "sourceFileType": null,
+    "sourceFileSizeBytes": null,
+    "sourceImageWidth": null,
+    "sourceImageHeight": null,
+    "sourceOrLicenseNotes": null,
+    "originalPrompt": null,
+    "aiToolOrModel": null,
+    "imageLevelModelReportedConfidencePercent": null,
+    "reviewer": null,
+    "reviewDate": null,
+    "overallOutcome": null,
+    "overallRationale": null
+  },
+  "qualityScores": {
+    "Visibility": null,
+    "Edge integrity": null,
+    "Sharpness": null,
+    "Object separation": null,
+    "Text legibility": null
+  },
+  "records": [],
+  "sessionSummary": {
+    "objectReviewCount": 0,
+    "acceptedAsIs": 0,
+    "decisiveModelPredictionReviews": 0,
+    "acceptanceRateAmongDecisiveModelPredictionReviewsPercent": null,
+    "missedObjectCount": 0,
+    "uncertainCount": 0,
+    "imageFindingCount": 0
+  },
+  "metricDefinitions": {
+    "modelConfidence": "Value reported by the AI tool. It is not human accuracy.",
+    "acceptanceRate": "Accepted-as-is predictions divided by decisive model-prediction reviews. Not model accuracy.",
+    "labelAccuracy": "Not calculated. Requires independently established reference labels and an agreed evaluation protocol."
+  },
+  "exportedAt": null,
+  "imageNotEmbedded": true
+}
