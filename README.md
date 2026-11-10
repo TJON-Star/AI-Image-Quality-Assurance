@@ -64,3 +64,10 @@ The workbench does not run AI inference. Predictions and confidence values must 
 - [Annotation and review guide](evaluation-workbench/annotation-guide.md)
 - [Tools and capabilities](tools-and-workflows/README.md)
 - [Assessment report template](reports/assessment-report-template.md)
+
+## Automated workbench checks
+
+A GitHub Actions workflow validates the workbench's inline JavaScript syntax, required interface controls, JSON and CSV templates, and the repository's no-em-dash documentation style when relevant files change. These are static checks. They do not replace manual browser testing or verify AI model performance.
+
+- [Validation script](scripts/validate-workbench.mjs)
+- [GitHub Actions workflow](.github/workflows/validate-workbench.yml)
