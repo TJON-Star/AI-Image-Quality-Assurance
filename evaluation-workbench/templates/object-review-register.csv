@@ -1,0 +1,2 @@
+image_id,review_item_id,object_or_region,model_predicted_label,reviewed_label,model_confidence_percent,review_disposition,defect_code,severity,box_x_min_px,box_y_min_px,box_x_max_px,box_y_max_px,evidence_note,reviewer,review_date
+,,,,,,,,,,,,,,,
