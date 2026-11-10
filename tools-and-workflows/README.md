@@ -13,6 +13,7 @@ This page explains how tools and skills fit into the portfolio. It distinguishes
 | Visual quality inspection | Image and region-level findings | Assessing sharpness, edges, text, object separation, and artifacts |
 | Edge-case handling | Examples involving blur, overlap, low light, and partial views | Inspecting difficult visual conditions |
 | Quality reporting | Assessment matrix and exported review records | Documenting observations, decisions, and limitations |
+| Review-session continuity | Saved JSON export and session import | Resuming a review without recreating previously recorded decisions |
 
 ## Platform technology
 
@@ -45,7 +46,8 @@ For each tool shown in a case study, record:
 - Review the prediction against the source image.
 - Record acceptance, correction, rejection, or uncertainty.
 - Use the evaluation workbench to document object-level and image-level findings.
-- Export a report and explain the decision.
+- Export a report, then import the saved JSON session with the same source image to demonstrate review continuity.
+- Explain the difference between model confidence, reviewer disposition, and any benchmark metric.
 
 ## Important distinctions
 
