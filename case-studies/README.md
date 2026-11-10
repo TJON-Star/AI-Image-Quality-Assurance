@@ -10,11 +10,9 @@ A qualitative review of retail shelf imagery, focused on product visibility, she
 
 ## Lagos Traffic Scene Visual Assessment
 
-A separate urban-scene assessment focused on traffic imagery, including vehicles, pedestrians, road signs, overlapping objects and scene-level visual quality.
+A qualitative urban-scene review covering vehicles, pedestrians, road signs, object separation, overlap, sharpness and scene context.
 
-This case study is maintained separately because traffic-scene inspection has different objects, risks and assessment priorities from retail shelf inspection.
-
----
+[Read the Lagos traffic assessment](lagos-traffic-scene-visual-assessment/README.md)
 
 ## Shared approach
 
@@ -26,15 +24,9 @@ Across these case studies, the work demonstrates:
 - Practical reporting of findings, limitations and areas requiring closer review.
 - Use of AI identification outputs as an additional source of information, rather than treating model confidence as human annotation accuracy.
 
-**Metric note:** The Try AI interface displays model-reported confidence values. Values shown by the model are model outputs; they are not equivalent to human label accuracy or a benchmark score unless separately measured against reference labels.
-
-## Lagos Traffic Scene Visual Quality Assessment
-
-A qualitative urban traffic review covering vehicle and pedestrian visibility, road-sign readability, object separation, overlap, sharpness and scene context.
-
-[Read the Lagos traffic assessment](lagos-traffic-scene-visual-assessment/README.md)
+**Metric note:** The Try AI interface displays model-reported confidence values. Values shown by the model are model outputs. They are not equivalent to human label accuracy or a benchmark score unless separately measured against reference labels.
 
 ## Practical evaluation tools
 
-- [AI Image Evaluation Workbench](../evaluation-workbench/README.md): local image review, reviewer decisions, quality findings, and JSON or CSV export.
+- [AI Image Evaluation Workbench](../evaluation-workbench/README.md): local image review, comparison of model and reviewer boxes, reviewer decisions, quality findings, and JSON or CSV export.
 - [Tools and capabilities](../tools-and-workflows/README.md): portfolio tools, workflows, and capability evidence.
