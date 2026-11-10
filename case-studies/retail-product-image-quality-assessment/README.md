@@ -25,13 +25,13 @@ Evaluate the visual usability of a retail shelf image and identify characteristi
 
 The review covered seven dimensions:
 
-1. **Product visibility** — whether products could be distinguished from nearby products and surrounding objects.
-2. **Shelf alignment** — whether shelf rows and product arrangements remained visually understandable.
-3. **Packaging boundaries** — whether package outlines and shapes remained recognizable.
-4. **Repeated visual patterns** — whether similar product details warranted further inspection for possible duplication or unnatural repetition.
-5. **Text quality** — whether packaging text was sufficiently clear to read and verify.
-6. **Image sharpness** — whether blur or loss of detail interfered with visual inspection.
-7. **Object separation** — whether adjacent products remained visually distinct rather than merging together.
+1. **Product visibility**: whether products could be distinguished from nearby products and surrounding objects.
+2. **Shelf alignment**: whether shelf rows and product arrangements remained visually understandable.
+3. **Packaging boundaries**: whether package outlines and shapes remained recognizable.
+4. **Repeated visual patterns**: whether similar product details warranted further inspection for possible duplication or unnatural repetition.
+5. **Text quality**: whether packaging text was sufficiently clear to read and verify.
+6. **Image sharpness**: whether blur or loss of detail interfered with visual inspection.
+7. **Object separation**: whether adjacent products remained visually distinct rather than merging together.
 
 ## Key findings
 
