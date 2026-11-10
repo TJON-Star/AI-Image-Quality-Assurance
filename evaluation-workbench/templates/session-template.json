@@ -22,7 +22,11 @@
     "Edge integrity": null,
     "Sharpness": null,
     "Object separation": null,
-    "Text legibility": null
+    "Text legibility": null,
+    "Instruction adherence": null,
+    "Structure and alignment": null,
+    "Shape and packaging integrity": null,
+    "Pattern consistency": null
   },
   "records": [],
   "sessionSummary": {
