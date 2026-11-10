@@ -27,3 +27,14 @@ Across these case studies, the work demonstrates:
 - Use of AI identification outputs as an additional source of information, rather than treating model confidence as human annotation accuracy.
 
 **Metric note:** The Try AI interface displays model-reported confidence values. Values shown by the model are model outputs; they are not equivalent to human label accuracy or a benchmark score unless separately measured against reference labels.
+
+## Lagos Traffic Scene Visual Quality Assessment
+
+A qualitative urban traffic review covering vehicle and pedestrian visibility, road-sign readability, object separation, overlap, sharpness and scene context.
+
+[Read the Lagos traffic assessment](lagos-traffic-scene-visual-assessment/README.md)
+
+## Practical evaluation tools
+
+- [AI Image Evaluation Workbench](../evaluation-workbench/README.md): local image review, reviewer decisions, quality findings, and JSON or CSV export.
+- [Tools and capabilities](../tools-and-workflows/README.md): portfolio tools, workflows, and capability evidence.
