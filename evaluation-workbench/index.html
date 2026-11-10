@@ -116,6 +116,16 @@ a{color:#1769aa}
         <div class="field"><label for="objectConfidence">Prediction confidence (%)</label><input id="objectConfidence" type="number" min="0" max="100" step="0.01" placeholder="Optional"></div>
         <div class="field"><label for="disposition">Review decision</label><select id="disposition"><option value="accepted">Accepted</option><option value="corrected_label">Corrected label</option><option value="poor_localization">Poor localization</option><option value="false_positive">Rejected false positive</option><option value="duplicate_prediction">Duplicate prediction</option><option value="missed_object">Missed object</option><option value="uncertain">Uncertain</option></select></div>
       </div>
+      <div class="field">
+        <label>AI-provided bounding box (original image pixels, optional)</label>
+        <div class="fields-2">
+          <input id="modelXmin" type="number" min="0" placeholder="Model x minimum" aria-label="Model box x minimum">
+          <input id="modelYmin" type="number" min="0" placeholder="Model y minimum" aria-label="Model box y minimum">
+          <input id="modelXmax" type="number" min="0" placeholder="Model x maximum" aria-label="Model box x maximum">
+          <input id="modelYmax" type="number" min="0" placeholder="Model y maximum" aria-label="Model box y maximum">
+        </div>
+        <div class="help">Enter the coordinates from the AI output if it provides a box. The blue dashed box you draw on the image is the reviewer box.</div>
+      </div>
       <div class="field"><label for="objectNote">Evidence note</label><textarea id="objectNote" placeholder="Explain what you observed and why you chose this decision."></textarea></div>
       <div class="help" id="boxStatus">No review region selected.</div>
       <div class="actions no-print"><button id="addObject" type="button" disabled>Add object review</button></div>
@@ -246,20 +256,31 @@ function drawCanvas() {
   ctx.drawImage(sourceImage,0,0,canvas.width,canvas.height);
   const sx = canvas.width / sourceImage.naturalWidth;
   const sy = canvas.height / sourceImage.naturalHeight;
-  records.filter(r=>r.box).forEach(r=>{
-    const b=r.box;
+  function drawBox(box,color,fill,label,dashed){
+    if(!box)return;
+    ctx.save();
     ctx.lineWidth=2;
-    ctx.strokeStyle=r.type==="object_review"?"#13784f":"#bd6a10";
-    ctx.fillStyle=r.type==="object_review"?"rgba(19,120,79,.10)":"rgba(189,106,16,.10)";
-    ctx.strokeRect(b.x_min*sx,b.y_min*sy,b.width*sx,b.height*sy);
-    ctx.fillRect(b.x_min*sx,b.y_min*sy,b.width*sx,b.height*sy);
-    const label=r.type==="object_review"?(r.reviewedLabel||r.predictedLabel||r.id):(r.category||r.id);
+    ctx.strokeStyle=color;
+    ctx.fillStyle=fill;
+    if(dashed)ctx.setLineDash([6,4]);
+    ctx.strokeRect(box.x_min*sx,box.y_min*sy,box.width*sx,box.height*sy);
+    if(fill)ctx.fillRect(box.x_min*sx,box.y_min*sy,box.width*sx,box.height*sy);
+    ctx.setLineDash([]);
     ctx.font="bold 12px sans-serif";
     const width=ctx.measureText(label).width+10;
-    ctx.fillStyle=r.type==="object_review"?"#13784f":"#9a570c";
-    ctx.fillRect(b.x_min*sx,b.y_min*sy-20,width,20);
+    ctx.fillStyle=color;
+    ctx.fillRect(box.x_min*sx,Math.max(0,box.y_min*sy-20),width,20);
     ctx.fillStyle="#fff";
-    ctx.fillText(label,b.x_min*sx+5,b.y_min*sy-6);
+    ctx.fillText(label,box.x_min*sx+5,Math.max(14,box.y_min*sy-6));
+    ctx.restore();
+  }
+  records.forEach(r=>{
+    if(r.type==="object_review"){
+      drawBox(r.modelBox,"#bd3434","rgba(189,52,52,.04)","AI: "+(r.predictedLabel||"prediction"),true);
+      drawBox(r.reviewerBox||r.box,"#13784f","rgba(19,120,79,.08)","Review: "+(r.reviewedLabel||r.id),false);
+    } else {
+      drawBox(r.box,"#9a570c","rgba(189,106,16,.10)",r.category||r.id,false);
+    }
   });
   if(pendingBox){
     ctx.save();
@@ -327,6 +348,19 @@ function validConfidence(value){
   const n=Number(value);
   return Number.isFinite(n)&&n>=0&&n<=100?n:null;
 }
+function readModelBox(){
+  const ids=["modelXmin","modelYmin","modelXmax","modelYmax"];
+  const raw=ids.map(id=>$(id).value.trim());
+  if(raw.every(v=>v===""))return null;
+  if(raw.some(v=>v===""))throw new Error("Enter all four model box coordinates or leave all four blank.");
+  const values=raw.map(Number);
+  if(values.some(v=>!Number.isFinite(v)))throw new Error("Model box coordinates must be numeric.");
+  const [x1,y1,x2,y2]=values;
+  if(x1<0||y1<0||x2>sourceImage.naturalWidth||y2>sourceImage.naturalHeight||x2<=x1||y2<=y1){
+    throw new Error("Model box coordinates must be within the image and have positive width and height.");
+  }
+  return {x_min:x1,y_min:y1,x_max:x2,y_max:y2,width:x2-x1,height:y2-y1};
+}
 function addRecord(record){
   records.push(record);
   pendingBox=null;
@@ -343,13 +377,16 @@ $("addObject").addEventListener("click",()=>{
   if(!reviewed&&disposition!=="false_positive"&&disposition!=="uncertain"){alert("Enter the reviewer-assessed label.");return;}
   const confidence=validConfidence($("objectConfidence").value);
   if($("objectConfidence").value!==""&&confidence===null){alert("Confidence must be between 0 and 100.");return;}
+  let modelBox=null;
+  try { modelBox=readModelBox(); } catch(error) { alert(error.message); return; }
   addRecord({
     id:nextId("OBJ"),type:"object_review",imageId:$("imageId").value.trim(),
     predictedLabel:predicted,reviewedLabel:reviewed,confidencePercent:confidence,
     disposition,dispositionLabel:dispositions[disposition],defectCode:dispositionCodes[disposition],
-    note:$("objectNote").value.trim(),box:pendingBox,createdAt:new Date().toISOString()
+    note:$("objectNote").value.trim(),modelBox,reviewerBox:pendingBox,box:pendingBox,createdAt:new Date().toISOString()
   });
   $("predictedLabel").value="";$("reviewedLabel").value="";$("objectConfidence").value="";$("objectNote").value="";
+  ["modelXmin","modelYmin","modelXmax","modelYmax"].forEach(id=>$(id).value="");
 });
 $("addDefect").addEventListener("click",()=>{
   if(!sourceImage){alert("Load an image first.");return;}
@@ -384,8 +421,10 @@ function renderRecords(){
       const decisionCell=addCell(row,decision);
       const tag=document.createElement("span");tag.className="tag "+(record.disposition==="accepted"?"accepted":record.severity==="Critical"||record.disposition==="false_positive"?"rejected":"caution");tag.textContent=decision;
       decisionCell.replaceChildren(tag);
-      const b=record.box;
-      addCell(row,b?(b.x_min+","+b.y_min+" to "+b.x_max+","+b.y_max+" px"):"Image level");
+      const b=record.type==="object_review"?(record.reviewerBox||record.box):record.box;
+      const m=record.modelBox;
+      const region=b?(b.x_min+","+b.y_min+" to "+b.x_max+","+b.y_max+" px"):"Image level";
+      addCell(row,record.type==="object_review"?(m?"AI: "+m.x_min+","+m.y_min+" to "+m.x_max+","+m.y_max+" px | Review: "+region:"Review: "+region):region);
       const action=addCell(row,"");
       const button=document.createElement("button");button.type="button";button.className="secondary no-print";button.textContent="Remove";
       button.addEventListener("click",()=>{records=records.filter(item=>item.id!==record.id);renderRecords();drawCanvas();updateExports();});
@@ -465,12 +504,13 @@ $("exportJson").addEventListener("click",()=>{
 });
 $("exportCsv").addEventListener("click",()=>{
   if(!sourceImage||records.length===0)return;
-  const columns=["imageId","id","type","predictedLabel","reviewedLabel","confidencePercent","disposition","defectCode","category","severity","box_x_min_px","box_y_min_px","box_x_max_px","box_y_max_px","note","createdAt"];
+  const columns=["imageId","id","type","predictedLabel","reviewedLabel","confidencePercent","disposition","defectCode","category","severity","model_box_x_min_px","model_box_y_min_px","model_box_x_max_px","model_box_y_max_px","review_box_x_min_px","review_box_y_min_px","review_box_x_max_px","review_box_y_max_px","note","createdAt"];
   const quote=value=>'"'+String(value??"").replace(/"/g,'""')+'"';
   const rows=[columns.map(quote).join(",")];
   records.forEach(r=>{
-    const b=r.box||{};
-    const row=[r.imageId,r.id,r.type,r.predictedLabel,r.reviewedLabel,r.confidencePercent,r.disposition,r.defectCode,r.category,r.severity,b.x_min,b.y_min,b.x_max,b.y_max,r.note,r.createdAt];
+    const b=r.reviewerBox||r.box||{};
+    const m=r.modelBox||{};
+    const row=[r.imageId,r.id,r.type,r.predictedLabel,r.reviewedLabel,r.confidencePercent,r.disposition,r.defectCode,r.category,r.severity,m.x_min,m.y_min,m.x_max,m.y_max,b.x_min,b.y_min,b.x_max,b.y_max,r.note,r.createdAt];
     rows.push(row.map(quote).join(","));
   });
   const id=($("imageId").value.trim()||"image-review").replace(/[^a-z0-9_-]+/gi,"_");
