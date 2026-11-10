@@ -1,0 +1,38 @@
+name: Validate image evaluation workbench
+
+on:
+  push:
+    paths:
+      - "evaluation-workbench/**"
+      - "reports/**"
+      - "tools-and-workflows/**"
+      - "case-studies/**"
+      - "README.md"
+      - "scripts/validate-workbench.mjs"
+      - ".github/workflows/validate-workbench.yml"
+  pull_request:
+    paths:
+      - "evaluation-workbench/**"
+      - "reports/**"
+      - "tools-and-workflows/**"
+      - "case-studies/**"
+      - "README.md"
+      - "scripts/validate-workbench.mjs"
+      - ".github/workflows/validate-workbench.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate workbench and portfolio templates
+        run: node scripts/validate-workbench.mjs
