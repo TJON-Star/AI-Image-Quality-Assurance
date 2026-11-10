@@ -362,7 +362,7 @@ function normalizeImportedBox(box){
   return {x_min:x1,y_min:y1,x_max:x2,y_max:y2,width:x2-x1,height:y2-y1};
 }
 function restoreField(id,value){
-  if(value!==null&&value!==undefined)$(id).value=String(value);
+  $(id).value=value===null||value===undefined?"":String(value);
 }
 $("importSession").addEventListener("click",async()=>{
   const file=$("sessionFile").files && $("sessionFile").files[0];
