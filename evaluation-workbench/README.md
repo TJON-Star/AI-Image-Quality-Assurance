@@ -6,6 +6,8 @@ A browser-based workspace for reviewing image-identification outputs and documen
 
 Download the [workbench HTML file](https://raw.githubusercontent.com/TJON-Star/AI-Image-Quality-Assurance/main/evaluation-workbench/index.html) to your computer, then open the downloaded file in a modern browser. You can also download the repository and open `evaluation-workbench/index.html` locally.
 
+To resume a saved review, first load the same source image, choose the JSON export from the previous session, and select **Import saved session**. The workbench checks the image dimensions and warns if the filename or file size differs. Confirm that you selected the correct source image before importing.
+
 GitHub's code viewer displays the HTML source. It does not run the workbench inside the repository page. The current prototype runs locally in your browser. It does not call an AI model, upload images, or send review data to a server.
 
 ## What it supports
@@ -29,6 +31,7 @@ GitHub's code viewer displays the HTML source. It does not run the workbench ins
 6. Add image-level quality findings. Attach a box when a finding relates to a specific region.
 7. Complete the quality ratings and overall assessment.
 8. Export the JSON record and CSV review register. Keep the source image separately with the exported records.
+9. To continue later, load the same source image, import the saved JSON session, review the restored records, and export the updated session when finished.
 
 ## Metrics and interpretation
 
@@ -55,6 +58,7 @@ Do not report accuracy, precision, recall, F1, inter-annotator agreement, or OCR
 - No reference dataset or gold labels are included.
 - The workbench does not calculate accuracy metrics.
 - Session records are not automatically saved. Export your work before closing or refreshing the page.
+- Saved JSON sessions can be imported to resume a review, but the original image must be selected again because the image is not embedded in the export.
 
 ## Suggested use
 
