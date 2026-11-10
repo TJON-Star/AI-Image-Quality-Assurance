@@ -26,8 +26,9 @@ for (const id of requiredIds) {
 
 assert.ok(html.includes("normalizeImportedBox"), "Saved session import must validate stored image coordinates.");
 assert.ok(html.includes("Loading another image will clear the current review records"), "Replacing an image must warn before clearing review records.");
-assert.ok(html.includes("does not run AI inference"), "Workbench must state that inference is performed separately.");
-assert.ok(html.includes("acceptance rate among decisive model prediction reviews"), "Workbench must distinguish acceptance rate from accuracy.");
+const htmlLower = html.toLowerCase();
+assert.ok(htmlLower.includes("does not call an ai model"), "Workbench must state that inference is performed separately.");
+assert.ok(htmlLower.includes("acceptance rate among decisive model prediction reviews"), "Workbench must distinguish acceptance rate from accuracy.");
 
 const session = JSON.parse(await readFile(join(root, "evaluation-workbench", "templates", "session-template.json"), "utf8"));
 assert.equal(session.schemaVersion, "1.0");
