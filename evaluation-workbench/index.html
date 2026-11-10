@@ -96,6 +96,10 @@ a{color:#1769aa}
       <h2>2. Load and inspect an image</h2>
       <p class="sub">Select a local image. Drag on the image to mark an object or region for review.</p>
       <div class="field no-print"><label for="imageFile">Image file</label><input id="imageFile" type="file" accept="image/*"></div>
+      <div class="fields-2 no-print">
+        <div class="field"><label for="sessionFile">Resume from saved JSON session</label><input id="sessionFile" type="file" accept=".json,application/json"></div>
+        <div class="field"><label>Restore previous review</label><button id="importSession" class="secondary" type="button" disabled>Import saved session</button><div class="help">Load the original image first, then import its matching JSON export.</div></div>
+      </div>
       <div class="canvas-shell" id="canvasShell">
         <div class="empty" id="emptyState">Choose an image to begin.<br><small>Accepted formats depend on your browser.</small></div>
         <canvas id="imageCanvas" hidden aria-label="Image inspection canvas. Drag to draw a review region."></canvas>
@@ -303,7 +307,11 @@ function setPendingBox(box) {
 $("imageFile").addEventListener("change",event=>{
   const file=event.target.files && event.target.files[0];
   if(!file) return;
-  if(!file.type.startsWith("image/")){alert("Please select a supported image file.");return;}
+  if(!file.type.startsWith("image/")){alert("Please select a supported image file.");event.target.value="";return;}
+  if(records.length>0 && !confirm("Loading another image will clear the current review records. Export your current session before continuing. Continue?")){
+    event.target.value="";
+    return;
+  }
   const url=URL.createObjectURL(file);
   const img=new Image();
   img.onload=()=>{
@@ -341,6 +349,88 @@ canvas.addEventListener("pointerup",event=>{
 });
 canvas.addEventListener("pointercancel",()=>{startPoint=null;dragPoint=null;});
 $("clearBox").addEventListener("click",()=>setPendingBox(null));
+$("sessionFile").addEventListener("change",updateExports);
+
+function normalizeImportedBox(box){
+  if(!box)return null;
+  const values=[box.x_min,box.y_min,box.x_max,box.y_max].map(Number);
+  if(values.some(v=>!Number.isFinite(v)))throw new Error("A saved box contains invalid coordinates.");
+  const [x1,y1,x2,y2]=values;
+  if(x1<0||y1<0||x2>sourceImage.naturalWidth||y2>sourceImage.naturalHeight||x2<=x1||y2<=y1){
+    throw new Error("A saved box is outside the loaded image or has invalid dimensions. Check that you loaded the original image.");
+  }
+  return {x_min:x1,y_min:y1,x_max:x2,y_max:y2,width:x2-x1,height:y2-y1};
+}
+function restoreField(id,value){
+  if(value!==null&&value!==undefined)$(id).value=String(value);
+}
+$("importSession").addEventListener("click",async()=>{
+  const file=$("sessionFile").files && $("sessionFile").files[0];
+  if(!sourceImage||!sourceFile){alert("Load the original source image before importing a saved session.");return;}
+  if(!file){alert("Select a saved JSON session first.");return;}
+  try{
+    const payload=JSON.parse(await file.text());
+    if(payload.schemaVersion!=="1.0"||!payload.assessment||!Array.isArray(payload.records)){
+      throw new Error("This file is not a supported AI Image Evaluation Workbench session (schema version 1.0).");
+    }
+    const assessment=payload.assessment;
+    if(assessment.sourceImageWidth&&assessment.sourceImageHeight&&
+       (Number(assessment.sourceImageWidth)!==sourceImage.naturalWidth||Number(assessment.sourceImageHeight)!==sourceImage.naturalHeight)){
+      throw new Error("The loaded image dimensions do not match the saved session. Load the original image used for that review.");
+    }
+    const identityMismatch=
+      (assessment.sourceFilename&&assessment.sourceFilename!==sourceFile.name)||
+      (assessment.sourceFileSizeBytes&&Number(assessment.sourceFileSizeBytes)!==sourceFile.size);
+    if(identityMismatch&&!confirm("The image filename or file size differs from the saved session. The dimensions match, but the image may not be identical. Import only if you have verified that this is the same source image.")){
+      return;
+    }
+    const restored=payload.records.map(record=>{
+      if(!record||!["object_review","image_finding"].includes(record.type))throw new Error("The saved session contains an unsupported record type.");
+      const normalized={...record};
+      normalized.box=normalizeImportedBox(record.box);
+      normalized.modelBox=normalizeImportedBox(record.modelBox);
+      normalized.reviewerBox=normalizeImportedBox(record.reviewerBox);
+      if(record.type==="object_review"){
+        if(!dispositions[record.disposition])throw new Error("A saved object review contains an unknown decision.");
+        normalized.dispositionLabel=record.dispositionLabel||dispositions[record.disposition];
+        normalized.defectCode=record.defectCode||dispositionCodes[record.disposition];
+      }else{
+        normalized.category=String(record.category||"Other");
+        normalized.severity=["Observation","Minor","Major","Critical"].includes(record.severity)?record.severity:"Observation";
+      }
+      return normalized;
+    });
+    if(records.length>0&&!confirm("Importing this session will replace the review records currently in the workbench. Continue?"))return;
+    restoreField("imageId",assessment.imageId);
+    if(["Retail","Urban traffic","Wildlife","Produce","General"].includes(assessment.domain))restoreField("domain",assessment.domain);
+    restoreField("toolName",assessment.aiToolOrModel);
+    restoreField("confidence",assessment.imageLevelModelReportedConfidencePercent);
+    restoreField("reviewer",assessment.reviewer);
+    restoreField("reviewDate",assessment.reviewDate);
+    restoreField("prompt",assessment.originalPrompt);
+    restoreField("sourceNotes",assessment.sourceOrLicenseNotes);
+    restoreField("outcome",assessment.overallOutcome);
+    restoreField("outcomeNotes",assessment.overallRationale);
+    const scoreMap={
+      "Visibility":"scoreVisibility",
+      "Edge integrity":"scoreEdges",
+      "Sharpness":"scoreSharpness",
+      "Object separation":"scoreSeparation",
+      "Text legibility":"scoreText"
+    };
+    Object.entries(scoreMap).forEach(([name,id])=>restoreField(id,payload.qualityScores&&payload.qualityScores[name]));
+    records=restored;
+    pendingBox=null;
+    $("clearBox").disabled=true;
+    $("addObject").disabled=true;
+    $("addDefect").disabled=false;
+    $("boxStatus").textContent="Saved session imported. Select a region to continue reviewing.";
+    renderRecords();drawCanvas();updateExports();
+    alert("Saved review session imported. Check the assessment details and records before continuing.");
+  }catch(error){
+    alert("Session import failed: "+error.message);
+  }
+});
 
 function nextId(prefix){return prefix+"-"+String(records.filter(r=>r.type===(prefix==="OBJ"?"object_review":"image_finding")).length+1).padStart(3,"0");}
 function validConfidence(value){
@@ -447,6 +537,7 @@ function updateExports(){
   const loaded=!!sourceImage;
   $("exportJson").disabled=!loaded;
   $("exportCsv").disabled=!loaded||records.length===0;
+  $("importSession").disabled=!loaded||!($("sessionFile").files&&$("sessionFile").files.length);
 }
 function getPayload(){
   const objects=records.filter(r=>r.type==="object_review");
@@ -520,7 +611,7 @@ $("printReport").addEventListener("click",()=>window.print());
 $("reset").addEventListener("click",()=>{
   if(!confirm("Reset this session? Export any work you need before continuing."))return;
   records=[];sourceImage=null;sourceFile=null;pendingBox=null;
-  $("imageFile").value="";canvas.hidden=true;$("emptyState").hidden=false;
+  $("imageFile").value="";$("sessionFile").value="";canvas.hidden=true;$("emptyState").hidden=false;
   $("imageInfo").textContent="No image loaded.";
   $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=true;
   $("boxStatus").textContent="No review region selected.";
