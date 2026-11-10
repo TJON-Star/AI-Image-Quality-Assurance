@@ -51,6 +51,7 @@ The repository now includes dedicated written case studies for domain-specific v
 
 - [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md): comprehensive retail image quality review and assessment criteria.
 - [Case Studies Index](case-studies/README.md): overview of the retail and urban traffic assessment tracks.
+- [Lagos Traffic Scene Visual Assessment](case-studies/lagos-traffic-scene-visual-assessment/README.md): separate urban traffic image review.
 
 ## Evaluation workbench
 
