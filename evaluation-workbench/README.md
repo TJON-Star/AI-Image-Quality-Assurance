@@ -9,7 +9,7 @@ Open [index.html](index.html) in a modern browser. The current version runs loca
 ## What it supports
 
 - Load a local image for inspection.
-- Draw review boxes around visible objects or image regions.
+- Draw reviewer boxes around visible objects or image regions, and compare them with AI-provided bounding-box coordinates when the model returns boxes.
 - Record the model-predicted label and the label accepted by the reviewer.
 - Record an individual model confidence value when it is available from the AI tool.
 - Classify review outcomes such as accepted, incorrect label, poor localization, duplicate prediction, false positive, missed object, or uncertain.
