@@ -11,6 +11,7 @@ This page explains how tools and skills fit into the portfolio. It distinguishes
 | Image classification | Predicted object or image classes | Reviewing whether labels match visible content |
 | Annotation review | Original prediction and reviewer decision | Reviewing labels and localization |
 | Visual quality inspection | Image and region-level findings | Assessing sharpness, edges, text, object separation, and artifacts |
+| Instruction adherence review | Original prompt and generated image | Comparing visible output with the stated instruction when the prompt is available |
 | Edge-case handling | Examples involving blur, overlap, low light, and partial views | Inspecting difficult visual conditions |
 | Quality reporting | Assessment matrix and exported review records | Documenting observations, decisions, and limitations |
 | Review-session continuity | Saved JSON export and session import | Resuming a review without recreating previously recorded decisions |
