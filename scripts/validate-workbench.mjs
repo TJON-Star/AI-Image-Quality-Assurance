@@ -18,6 +18,7 @@ const requiredIds = [
   "domain", "toolName", "prompt", "objectConfidence", "modelXmin", "modelYmin",
   "modelXmax", "modelYmax", "recordsBody", "scoreVisibility", "scoreEdges",
   "scoreSharpness", "scoreSeparation", "scoreText", "exportJson", "exportCsv",
+  "scoreInstruction", "scoreStructure", "scoreShape", "scorePatterns",
   "printReport", "reset"
 ];
 for (const id of requiredIds) {
