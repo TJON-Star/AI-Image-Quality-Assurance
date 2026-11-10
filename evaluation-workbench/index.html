@@ -188,6 +188,10 @@ a{color:#1769aa}
       <div class="field"><label for="scoreSharpness">Sharpness</label><select id="scoreSharpness"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
       <div class="field"><label for="scoreSeparation">Object separation</label><select id="scoreSeparation"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
       <div class="field"><label for="scoreText">Text legibility</label><select id="scoreText"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreInstruction">Instruction adherence</label><select id="scoreInstruction"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select><div class="help">Score only when the original prompt or instruction is available.</div></div>
+      <div class="field"><label for="scoreStructure">Structure and alignment</label><select id="scoreStructure"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreShape">Shape and packaging integrity</label><select id="scoreShape"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scorePatterns">Pattern consistency</label><select id="scorePatterns"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
     </div>
     <div class="fields-2">
       <div class="field"><label for="outcome">Overall quality decision</label><select id="outcome"><option value="">Select outcome</option><option>Accept for stated visual review</option><option>Accept with caveats</option><option>Needs correction or additional review</option><option>Reject as unsuitable for stated task</option></select></div>
@@ -237,8 +241,8 @@ const dispositionCodes = {
   duplicate_prediction:"PRED-06",
   uncertain:"PRED-07"
 };
-const qualityNames = ["Visibility","Edge integrity","Sharpness","Object separation","Text legibility"];
-const scoreIds = ["scoreVisibility","scoreEdges","scoreSharpness","scoreSeparation","scoreText"];
+const qualityNames = ["Visibility","Edge integrity","Sharpness","Object separation","Text legibility","Instruction adherence","Structure and alignment","Shape and packaging integrity","Pattern consistency"];
+const scoreIds = ["scoreVisibility","scoreEdges","scoreSharpness","scoreSeparation","scoreText","scoreInstruction","scoreStructure","scoreShape","scorePatterns"];
 
 function getBoxFromPointer(event) {
   const rect = canvas.getBoundingClientRect();
@@ -416,7 +420,11 @@ $("importSession").addEventListener("click",async()=>{
       "Edge integrity":"scoreEdges",
       "Sharpness":"scoreSharpness",
       "Object separation":"scoreSeparation",
-      "Text legibility":"scoreText"
+      "Text legibility":"scoreText",
+      "Instruction adherence":"scoreInstruction",
+      "Structure and alignment":"scoreStructure",
+      "Shape and packaging integrity":"scoreShape",
+      "Pattern consistency":"scorePatterns"
     };
     Object.entries(scoreMap).forEach(([name,id])=>restoreField(id,payload.qualityScores&&payload.qualityScores[name]));
     records=restored;
