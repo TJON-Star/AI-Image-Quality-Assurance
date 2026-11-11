@@ -33,7 +33,7 @@ assert.ok(html.includes('let autoImageId = ""'), "Automatic image ID state must 
 assert.ok(html.includes('pendingBox=null;autoImageId=""'), "Reset must clear automatic image ID state.");
 assert.ok(html.includes('autoImageId=$("imageId").value===filenameId?filenameId:""'), "Session restoration must re-establish automatic versus manual image ID state.");
 
-const nextIdMatch = html.match(/function nextId\\(prefix\\)\\{[\\s\\S]*?\\n\\}/);
+const nextIdMatch = html.match(/function nextId\(prefix\)\{[\s\S]*?\n\}/);
 assert.ok(nextIdMatch, "Workbench must define the review-record ID generator.");
 const idContext = {
   records: [
