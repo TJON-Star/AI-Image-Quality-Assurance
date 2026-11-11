@@ -37,7 +37,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .autosave{margin-top:10px;font-size:13px;font-weight:600;color:var(--green)}
 .autosave.warn{color:var(--amber)}
 .canvas-shell{background:#edf2f5;border:1px dashed #bbc8d2;border-radius:12px;min-height:230px;display:grid;place-items:center;overflow:auto;padding:10px}
-canvas{display:block;max-width:100%;height:auto;cursor:crosshair;border-radius:4px}
+canvas{display:block;max-width:100%;height:auto;cursor:crosshair;border-radius:4px;touch-action:none}
 .empty{color:#697987;text-align:center;padding:38px 12px}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
 .metric{background:#f2f6f8;border:1px solid #e1e8ed;padding:10px;border-radius:10px;min-width:0}
@@ -223,8 +223,12 @@ let startPoint = null;
 let dragPoint = null;
 let pendingBox = null;
 let records = [];
-const now = new Date();
-$("reviewDate").value = new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
+let autoImageId = "";
+const todayLocal = () => {
+  const d = new Date();
+  return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+};
+$("reviewDate").value = todayLocal();
 
 const dispositions = {
   accepted:"Accepted",
@@ -330,7 +334,11 @@ function loadImage(file,onLoaded){
     canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
     canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
     canvas.hidden=false;$("emptyState").hidden=true;
-    $("imageId").value=$("imageId").value.trim()||file.name.replace(/\.[^.]+$/,"");
+    const curId=$("imageId").value.trim();
+    if(!curId||curId===autoImageId){
+      autoImageId=file.name.replace(/\.[^.]+$/,"");
+      $("imageId").value=autoImageId;
+    }
     $("imageInfo").textContent=file.name+" · "+img.naturalWidth+" × "+img.naturalHeight+" pixels · "+Math.round(file.size/1024)+" KB";
     $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=false;
     renderRecords();drawCanvas();updateExports();
@@ -447,7 +455,14 @@ $("importSession").addEventListener("click",async()=>{
   }
 });
 
-function nextId(prefix){return prefix+"-"+String(records.filter(r=>r.type===(prefix==="OBJ"?"object_review":"image_finding")).length+1).padStart(3,"0");}
+function nextId(prefix){
+  const type=prefix==="OBJ"?"object_review":"image_finding";
+  const used=records.filter(r=>r.type===type).map(r=>{
+    const match=new RegExp("^"+prefix+"-(\\d+)$").exec(String(r.id||""));
+    return match?Number(match[1]):0;
+  });
+  return prefix+"-"+String(Math.max(0,...used)+1).padStart(3,"0");
+}
 function validConfidence(value){
   if(value==="")return null;
   const n=Number(value);
@@ -626,13 +641,13 @@ $("exportCsv").addEventListener("click",()=>{
 $("printReport").addEventListener("click",()=>window.print());
 $("reset").addEventListener("click",()=>{
   if(!confirm("Reset this session? Export any work you need before continuing."))return;
-  records=[];sourceImage=null;sourceFile=null;pendingBox=null;
+  records=[];sourceImage=null;sourceFile=null;pendingBox=null;autoImageId="";
   $("imageFile").value="";$("sessionFile").value="";canvas.hidden=true;$("emptyState").hidden=false;
   $("imageInfo").textContent="No image loaded.";
   $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=true;
   $("boxStatus").textContent="No review region selected.";
   ["imageId","toolName","confidence","reviewer","prompt","sourceNotes","predictedLabel","reviewedLabel","objectConfidence","objectNote","defectNote","outcomeNotes"].forEach(id=>$(id).value="");
-  $("reviewDate").value=new Date().toISOString().slice(0,10);
+  $("reviewDate").value=todayLocal();
   [...scoreIds,"outcome"].forEach(id=>$(id).value="");
   renderRecords();updateExports();
   clearSaved();
@@ -688,6 +703,12 @@ async function clearSaved(){
 }
 function applySaved(saved){
   Object.entries(saved.fields||{}).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=="file")el.value=value??"";});
+  if(sourceFile){
+    const filenameId=sourceFile.name.replace(/\.[^.]+$/,"");
+    autoImageId=$("imageId").value===filenameId?filenameId:"";
+  }else{
+    autoImageId="";
+  }
   records=Array.isArray(saved.records)?saved.records:[];
   pendingBox=null;
   $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=!sourceImage;
