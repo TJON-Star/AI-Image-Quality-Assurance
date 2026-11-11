@@ -27,6 +27,29 @@ for (const id of requiredIds) {
 
 assert.ok(html.includes("normalizeImportedBox"), "Saved session import must validate stored image coordinates.");
 assert.ok(html.includes("Loading another image will clear the current review records"), "Replacing an image must warn before clearing review records.");
+assert.ok(html.includes("touch-action:none"), "Canvas must support direct pointer drawing without browser touch gestures.");
+assert.ok(html.includes("const todayLocal"), "Review dates must use the local calendar date.");
+assert.ok(html.includes('let autoImageId = ""'), "Automatic image ID state must be initialized.");
+assert.ok(html.includes('pendingBox=null;autoImageId=""'), "Reset must clear automatic image ID state.");
+assert.ok(html.includes('autoImageId=$("imageId").value===filenameId?filenameId:""'), "Session restoration must re-establish automatic versus manual image ID state.");
+
+const nextIdMatch = html.match(/function nextId\\(prefix\\)\\{[\\s\\S]*?\\n\\}/);
+assert.ok(nextIdMatch, "Workbench must define the review-record ID generator.");
+const idContext = {
+  records: [
+    { type: "object_review", id: "OBJ-001" },
+    { type: "object_review", id: "OBJ-003" },
+    { type: "image_finding", id: "FIND-002" }
+  ]
+};
+const nextObjectId = vm.runInNewContext(nextIdMatch[0] + '; nextId("OBJ")', idContext);
+assert.equal(nextObjectId, "OBJ-004", "New object review IDs must follow the highest existing sequence, not the record count.");
+idContext.records = idContext.records.filter(record => record.id !== "OBJ-003");
+const nextObjectIdAfterRemoval = vm.runInNewContext(nextIdMatch[0] + '; nextId("OBJ")', idContext);
+assert.equal(nextObjectIdAfterRemoval, "OBJ-002", "ID sequence must remain unique after deleting the highest-numbered record.");
+const nextFindingId = vm.runInNewContext(nextIdMatch[0] + '; nextId("FIND")', idContext);
+assert.equal(nextFindingId, "FIND-003", "Object and image-finding sequences must remain independent.");
+
 const htmlLower = html.toLowerCase();
 assert.ok(htmlLower.includes("does not run ai inference"), "Workbench must state that inference is performed separately.");
 assert.ok(htmlLower.includes("acceptance rate among decisive model prediction reviews"), "Workbench must distinguish acceptance rate from accuracy.");
