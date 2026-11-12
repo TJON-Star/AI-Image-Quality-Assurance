@@ -36,6 +36,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .help{font-size:12px;color:var(--muted);margin-top:5px}
 .autosave{margin-top:10px;font-size:13px;font-weight:600;color:var(--green)}
 .autosave.warn{color:var(--amber)}
+.session-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.session-bar label{font-weight:650}
+.session-bar select{width:auto;flex:1 1 260px;max-width:420px}
 .canvas-shell{background:#edf2f5;border:1px dashed #bbc8d2;border-radius:12px;min-height:230px;display:grid;place-items:center;overflow:auto;padding:10px}
 canvas{display:block;max-width:100%;height:auto;cursor:crosshair;border-radius:4px;touch-action:none}
 .empty{color:#697987;text-align:center;padding:38px 12px}
@@ -75,7 +78,12 @@ a{color:#1769aa}
 <main>
   <section class="notice">
     <strong>How this workbench operates</strong>
-    It does not run AI inference or upload images. Run the image through your chosen AI tool separately, then enter its actual predictions and confidence values here. Your review decisions remain separate from model outputs. Your work is saved automatically in this browser, so you can close the page and carry on later. Export JSON to keep a permanent copy or to move to another device.
+    It does not run AI inference or upload images. Run the image through your chosen AI tool separately, then enter its actual predictions and confidence values here. Your review decisions remain separate from model outputs. Your work is saved automatically in this browser, so you can close the page and carry on later. Each image ID gets its own saved review: use <strong>Start new review</strong> for the next image and the <strong>Saved reviews</strong> list to switch between them. Export JSON to keep a permanent copy or to move to another device.
+    <div class="session-bar no-print">
+      <label for="sessionSelect">Saved reviews</label>
+      <select id="sessionSelect" aria-describedby="autosaveStatus"></select>
+      <button id="newSession" type="button" class="secondary">Start new review</button>
+    </div>
     <div class="autosave no-print" id="autosaveStatus" role="status" aria-live="polite">Automatic saving: starting…</div>
   </section>
 
@@ -319,7 +327,7 @@ $("imageFile").addEventListener("change",event=>{
   const file=event.target.files && event.target.files[0];
   if(!file) return;
   if(!file.type.startsWith("image/")){alert("Please select a supported image file.");event.target.value="";return;}
-  if(records.length>0 && !confirm("Loading another image will clear the current review records. Export your current session before continuing. Continue?")){
+  if(records.length>0 && !confirm("Loading another image will clear this review's records. To keep this review, cancel and click Start new review instead. Continue?")){
     event.target.value="";
     return;
   }
@@ -639,8 +647,7 @@ $("exportCsv").addEventListener("click",()=>{
   download(id+"_review_register.csv",rows.join("\r\n"),"text/csv;charset=utf-8");
 });
 $("printReport").addEventListener("click",()=>window.print());
-$("reset").addEventListener("click",()=>{
-  if(!confirm("Reset this session? Export any work you need before continuing."))return;
+function clearWorkspace(){
   records=[];sourceImage=null;sourceFile=null;pendingBox=null;autoImageId="";
   $("imageFile").value="";$("sessionFile").value="";canvas.hidden=true;$("emptyState").hidden=false;
   $("imageInfo").textContent="No image loaded.";
@@ -650,14 +657,20 @@ $("reset").addEventListener("click",()=>{
   $("reviewDate").value=todayLocal();
   [...scoreIds,"outcome"].forEach(id=>$(id).value="");
   renderRecords();updateExports();
-  clearSaved();
+}
+$("reset").addEventListener("click",()=>{
+  if(!confirm("Reset this review? This deletes its automatically saved copy. Your other saved reviews are kept. Export any work you need first."))return;
+  deleteCurrent();
 });
 [...scoreIds,"outcome"].forEach(id=>$(id).addEventListener("change",updateExports));
 
-/* ---------- Automatic saving (browser-only, IndexedDB) ---------- */
-const DB_NAME="ai-image-evaluation-workbench",STORE="sessions",KEY="current";
-const fieldEls=[...document.querySelectorAll("main input, main textarea, main select")].filter(el=>el.id&&el.type!=="file");
-let db=null,autosaveReady=false,saveTimer=null;
+/* ---------- Automatic saving, one saved review per image (browser-only, IndexedDB) ---------- */
+const DB_NAME="ai-image-evaluation-workbench",STORE="sessions",ACTIVE_KEY="activeSessionId",LEGACY_KEY="current";
+const fieldEls=[...document.querySelectorAll("main input, main textarea, main select")].filter(el=>el.id&&el.type!=="file"&&el.id!=="sessionSelect");
+const defaultFieldIds=["reviewDate","domain","disposition","defectType","severity"];
+let db=null,autosaveReady=false,saveTimer=null,currentId=null;
+const sessionKey=id=>"session:"+id;
+const newId=()=>"s-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);
 function setStatus(text,warn){const el=$("autosaveStatus");el.textContent=text;el.classList.toggle("warn",!!warn);}
 function timeText(iso){try{return new Date(iso).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});}catch(e){return iso;}}
 function openDb(){
@@ -672,74 +685,150 @@ function openDb(){
 function dbRequest(mode,fn){
   return new Promise((resolve,reject)=>{
     const tx=db.transaction(STORE,mode);const req=fn(tx.objectStore(STORE));
-    tx.oncomplete=()=>resolve(req.result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+    tx.oncomplete=()=>resolve(req&&req.result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
   });
 }
+const dbGet=key=>dbRequest("readonly",s=>s.get(key));
 function hasContent(){
-  return !!sourceImage||records.length>0||fieldEls.some(el=>el.id!=="reviewDate"&&el.id!=="domain"&&el.id!=="disposition"&&el.id!=="defectType"&&el.id!=="severity"&&el.value.trim()!=="");
+  return !!sourceImage||records.length>0||fieldEls.some(el=>!defaultFieldIds.includes(el.id)&&el.value.trim()!=="");
+}
+function reviewName(saved){return ((saved.fields&&saved.fields.imageId)||"").trim()||saved.fileName||"Untitled review";}
+async function listSessions(){
+  const all=await dbRequest("readonly",s=>s.getAll());
+  return all.filter(x=>x&&typeof x==="object"&&x.sessionId).sort((a,b)=>String(b.savedAt).localeCompare(String(a.savedAt)));
+}
+async function refreshList(){
+  if(!db)return;
+  const sessions=await listSessions();
+  const sel=$("sessionSelect");sel.replaceChildren();
+  if(!sessions.some(x=>x.sessionId===currentId))sel.add(new Option("New review (not saved yet)",currentId));
+  sessions.forEach(x=>{
+    const n=Array.isArray(x.records)?x.records.length:0;
+    sel.add(new Option(reviewName(x)+" · "+n+" record"+(n===1?"":"s")+" · saved "+timeText(x.savedAt),x.sessionId));
+  });
+  sel.value=currentId;
+  sel.disabled=sel.options.length<2;
 }
 function scheduleSave(){
   if(!autosaveReady)return;
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(saveNow,400);
+  saveTimer=setTimeout(()=>saveNow(),400);
 }
 async function saveNow(){
   clearTimeout(saveTimer);saveTimer=null;
-  if(!autosaveReady||!db)return;
+  if(!db||!currentId)return;
   try{
-    if(!hasContent()){await dbRequest("readwrite",s=>s.delete(KEY));setStatus("Automatic saving is on. Your work will be kept in this browser.");return;}
-    const fields={};fieldEls.forEach(el=>fields[el.id]=el.value);
-    const savedAt=new Date().toISOString();
-    await dbRequest("readwrite",s=>s.put({version:1,savedAt,fields,records,file:sourceFile||null,fileName:sourceFile?sourceFile.name:null},KEY));
-    setStatus("All changes saved in this browser · "+timeText(savedAt));
+    if(!hasContent()){
+      await dbRequest("readwrite",s=>{s.delete(sessionKey(currentId));return s.put(currentId,ACTIVE_KEY);});
+    }else{
+      const fields={};fieldEls.forEach(el=>fields[el.id]=el.value);
+      const savedAt=new Date().toISOString();
+      await dbRequest("readwrite",s=>{
+        s.put({version:2,sessionId:currentId,savedAt,fields,records,file:sourceFile||null,fileName:sourceFile?sourceFile.name:null},sessionKey(currentId));
+        return s.put(currentId,ACTIVE_KEY);
+      });
+      setStatus("All changes to "+(($("imageId").value||"").trim()||"this review")+" saved in this browser · "+timeText(savedAt));
+    }
+    await refreshList();
   }catch(error){
     setStatus("Automatic saving failed ("+(error&&error.name||"storage error")+"). Export JSON to keep your work.",true);
   }
 }
-async function clearSaved(){
-  clearTimeout(saveTimer);
-  if(!db)return;
-  try{await dbRequest("readwrite",s=>s.delete(KEY));setStatus("Session reset. Automatic saving is on.");}catch(e){}
-}
 function applySaved(saved){
-  Object.entries(saved.fields||{}).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=="file")el.value=value??"";});
-  if(sourceFile){
-    const filenameId=sourceFile.name.replace(/\.[^.]+$/,"");
-    autoImageId=$("imageId").value===filenameId?filenameId:"";
-  }else{
-    autoImageId="";
-  }
+  Object.entries(saved.fields||{}).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=="file"&&el.id!=="sessionSelect")el.value=value??"";});
   records=Array.isArray(saved.records)?saved.records:[];
   pendingBox=null;
   $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=!sourceImage;
   renderRecords();drawCanvas();updateExports();
 }
-document.querySelector("main").addEventListener("input",e=>{if(e.target.type!=="file")scheduleSave();});
-document.querySelector("main").addEventListener("change",e=>{if(e.target.type!=="file")scheduleSave();});
+function restoreSaved(saved){
+  return new Promise(resolve=>{
+    if(!(saved.file instanceof Blob)){applySaved(saved);resolve(true);return;}
+    const file=saved.file instanceof File?saved.file:new File([saved.file],saved.fileName||"restored-image",{type:saved.file.type});
+    loadImage(file,error=>{
+      applySaved(saved);
+      if(error){resolve(false);return;}
+      $("imageInfo").textContent+=" · restored from automatic save";
+      $("boxStatus").textContent="Saved review restored. Select a region to continue reviewing.";
+      resolve(true);
+    });
+  });
+}
+async function withSavingPaused(task){
+  if(saveTimer)await saveNow();
+  autosaveReady=false;
+  try{await task();}finally{autosaveReady=true;}
+  await refreshList();
+}
+async function switchTo(id){
+  if(!db||id===currentId)return;
+  await withSavingPaused(async()=>{
+    if(hasContent())await saveNow();
+    const saved=await dbGet(sessionKey(id));
+    clearWorkspace();
+    currentId=id;
+    await dbRequest("readwrite",s=>s.put(id,ACTIVE_KEY));
+    if(!saved){setStatus("New review. Load an image to begin.");return;}
+    const ok=await restoreSaved(saved);
+    setStatus(ok?"Switched to "+reviewName(saved)+" (saved "+timeText(saved.savedAt)+").":"Switched to "+reviewName(saved)+". The image couldn't be reopened. Load "+(saved.fileName||"the original image")+" again.",!ok);
+  });
+}
+$("newSession").addEventListener("click",async()=>{
+  if(!db){if(confirm("Automatic saving isn't available, so starting a new review clears this one. Export it first. Continue?"))clearWorkspace();return;}
+  await withSavingPaused(async()=>{
+    if(hasContent())await saveNow();
+    clearWorkspace();
+    currentId=newId();
+    await dbRequest("readwrite",s=>s.put(currentId,ACTIVE_KEY));
+    setStatus("New review started. Enter its image ID and load an image. Your other reviews stay saved in the list.");
+  });
+});
+$("sessionSelect").addEventListener("change",e=>switchTo(e.target.value));
+async function deleteCurrent(){
+  if(!db){clearWorkspace();return;}
+  await withSavingPaused(async()=>{
+    clearTimeout(saveTimer);saveTimer=null;
+    await dbRequest("readwrite",s=>s.delete(sessionKey(currentId)));
+    clearWorkspace();
+    currentId=newId();
+    await dbRequest("readwrite",s=>s.put(currentId,ACTIVE_KEY));
+    const others=await listSessions();
+    setStatus("Review reset and its saved copy deleted."+(others.length?" Your other saved reviews are still in the list.":""));
+  });
+}
+const shouldSave=e=>e.target.type!=="file"&&e.target.id!=="sessionSelect";
+document.querySelector("main").addEventListener("input",e=>{if(shouldSave(e))scheduleSave();});
+document.querySelector("main").addEventListener("change",e=>{if(shouldSave(e))scheduleSave();});
 window.addEventListener("pagehide",()=>{if(saveTimer)saveNow();});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&saveTimer)saveNow();});
 
 renderRecords();updateExports();
+$("sessionSelect").disabled=true;
 (async()=>{
-  try{db=await openDb();}catch(error){setStatus("Automatic saving isn't available in this browser (for example in private browsing). Export JSON before closing the page.",true);return;}
-  let saved=null;
-  try{saved=await dbRequest("readonly",s=>s.get(KEY));}catch(e){}
-  const finish=message=>{autosaveReady=true;setStatus(message);};
-  if(!saved){finish("Automatic saving is on. Your work will be kept in this browser.");return;}
-  const restoredText="Restored your review saved "+timeText(saved.savedAt)+".";
-  if(saved.file instanceof Blob){
-    const file=saved.file instanceof File?saved.file:new File([saved.file],saved.fileName||"restored-image",{type:saved.file.type});
-    loadImage(file,error=>{
-      if(error){applySaved(saved);finish(restoredText+" The image couldn't be reopened. Load "+(saved.fileName||"the original image")+" again.");return;}
-      applySaved(saved);
-      $("imageInfo").textContent+=" · restored from automatic save";
-      $("boxStatus").textContent="Saved review restored. Select a region to continue reviewing.";
-      finish(restoredText);
-    });
-  }else{
-    applySaved(saved);
-    finish(restoredText);
+  try{db=await openDb();}catch(error){
+    $("newSession").disabled=false;
+    setStatus("Automatic saving isn't available in this browser (for example in private browsing). Export JSON before closing the page.",true);
+    return;
   }
+  try{
+    // Move a review saved by the earlier single-review version into the list.
+    const legacy=await dbGet(LEGACY_KEY);
+    if(legacy&&typeof legacy==="object"){
+      const id=newId();
+      await dbRequest("readwrite",s=>{s.put({...legacy,version:2,sessionId:id},sessionKey(id));s.delete(LEGACY_KEY);return s.put(id,ACTIVE_KEY);});
+    }
+  }catch(e){}
+  let saved=null,active=null;
+  try{active=await dbGet(ACTIVE_KEY);if(active)saved=await dbGet(sessionKey(active));}catch(e){}
+  currentId=saved?active:newId();
+  let message="Automatic saving is on. Each image ID is kept as its own saved review in this browser.";
+  if(saved){
+    const ok=await restoreSaved(saved);
+    message=ok?"Restored "+reviewName(saved)+" (saved "+timeText(saved.savedAt)+").":"Restored "+reviewName(saved)+". The image couldn't be reopened. Load "+(saved.fileName||"the original image")+" again.";
+    setStatus(message,!ok);
+  }else setStatus(message);
+  autosaveReady=true;
+  await refreshList();
 })();
 })();
 </script>
