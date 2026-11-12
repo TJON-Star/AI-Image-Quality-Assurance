@@ -6,7 +6,9 @@ A browser-based workspace for reviewing image-identification outputs and documen
 
 Download the [workbench HTML file](https://raw.githubusercontent.com/TJON-Star/AI-Image-Quality-Assurance/main/evaluation-workbench/index.html) to your computer, then open the downloaded file in a modern browser. You can also download the repository and open `evaluation-workbench/index.html` locally.
 
-Your review is saved automatically in the browser as you work, including the loaded image. If you close or refresh the page, open it again in the same browser and the review is restored. **Reset session** clears the saved copy.
+Your review is saved automatically in the browser as you work, including the loaded image. If you close or refresh the page, open it again in the same browser and the review is restored.
+
+Each image is kept as its own saved review. Click **Start new review** before loading the next image (for example after RETAIL-001, start LAGOS-001), and use the **Saved reviews** list at the top to switch between them. **Reset session** deletes only the review you are working on.
 
 To resume a review on another device or browser, or from an archived export, first load the same source image, choose the JSON export from the previous session, and select **Import saved session**. The workbench checks the image dimensions and warns if the filename or file size differs. Confirm that you selected the correct source image before importing.
 
@@ -49,7 +51,8 @@ Do not report accuracy, precision, recall, F1, inter-annotator agreement, or OCR
 - Image processing occurs in the browser tab.
 - The workbench does not upload selected images.
 - Review data and the loaded image are saved automatically in this browser's local storage (IndexedDB) so the session survives closing or refreshing the page. Nothing is uploaded.
-- **Reset session** deletes the automatically saved copy. Clearing browser data also removes it.
+- Several reviews can be saved side by side; each keeps its own image, details, records and ratings.
+- **Reset session** deletes the saved copy of the current review only. Clearing browser data removes all saved reviews.
 - Exported JSON contains review metadata and coordinates, not the image itself.
 - Store the exported JSON, CSV, and source image together in a controlled project folder.
 - Do not use confidential, personal, or restricted images in a public repository without the necessary permission.
