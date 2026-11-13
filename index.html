@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Image Evaluation Workbench</title>
+<style>
+:root{color-scheme:light;--ink:#17212b;--muted:#617080;--line:#dce3e8;--paper:#f4f7f9;--panel:#fff;--navy:#142b3d;--blue:#1769aa;--blue-soft:#eaf3fb;--green:#17744a;--green-soft:#e8f5ee;--amber:#8b5b08;--amber-soft:#fff4dc;--red:#a83232;--red-soft:#fff0ee;--radius:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--navy);color:#fff;padding:30px 22px}
+header .wrap,main,.footer{max-width:1180px;margin:0 auto}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.13em;color:#a9c9df;font-weight:700}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.12;margin:9px 0 10px}
+header p{max-width:780px;color:#d3e0e9;margin:0}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.pill{border:1px solid #496276;border-radius:999px;padding:5px 10px;font-size:12px;color:#e5f0f6}
+main{padding:24px 18px 48px}
+.notice{background:var(--blue-soft);border:1px solid #c9def0;border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.notice strong{display:block;margin-bottom:3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:19px;margin-bottom:16px;box-shadow:0 3px 12px rgba(20,43,61,.035)}
+.panel h2{font-size:19px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 15px}
+label{display:block;font-size:13px;font-weight:650;margin:0 0 5px}
+input,select,textarea{font:inherit;color:var(--ink);border:1px solid #c8d2db;border-radius:8px;padding:10px 11px;width:100%;background:#fff;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus{outline:3px solid #c2e0f7;outline-offset:1px}
+textarea{min-height:82px;resize:vertical}
+.field{margin-bottom:12px}
+.fields-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button,.button{border:0;border-radius:8px;padding:10px 14px;background:var(--blue);color:#fff;font:inherit;font-weight:650;cursor:pointer}
+button.secondary{background:#eaf0f4;color:#203344;border:1px solid #d7e0e7}
+button.danger{background:var(--red-soft);color:var(--red);border:1px solid #f1d0cb}
+button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.help{font-size:12px;color:var(--muted);margin-top:5px}
+.autosave{margin-top:10px;font-size:13px;font-weight:600;color:var(--green)}
+.autosave.warn{color:var(--amber)}
+.canvas-shell{background:#edf2f5;border:1px dashed #bbc8d2;border-radius:12px;min-height:230px;display:grid;place-items:center;overflow:auto;padding:10px}
+canvas{display:block;max-width:100%;height:auto;cursor:crosshair;border-radius:4px;touch-action:none}
+.empty{color:#697987;text-align:center;padding:38px 12px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
+.metric{background:#f2f6f8;border:1px solid #e1e8ed;padding:10px;border-radius:10px;min-width:0}
+.metric b{font-size:22px;display:block;line-height:1.2}
+.metric span{font-size:11px;color:var(--muted)}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:740px}
+th,td{padding:10px 9px;text-align:left;border-bottom:1px solid #e8edf0;vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#536371;background:#f7f9fa}
+td small{display:block;color:var(--muted);margin-top:3px}
+.tag{display:inline-block;border-radius:100px;padding:3px 8px;font-size:11px;font-weight:700;background:#eef2f5;color:#405261}
+.tag.accepted{background:var(--green-soft);color:var(--green)}
+.tag.caution{background:var(--amber-soft);color:var(--amber)}
+.tag.rejected{background:var(--red-soft);color:var(--red)}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.score-note{font-size:12px;color:var(--muted);margin-top:10px}
+footer{padding:0 18px 34px;color:var(--muted);font-size:12px}
+footer .footer{border-top:1px solid var(--line);padding-top:17px}
+a{color:#1769aa}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.fields-2{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}header{padding:25px 18px}}
+@media print{body{background:#fff}.no-print,header .pills,.notice button{display:none!important}.panel{box-shadow:none;break-inside:avoid}main{padding:0}.canvas-shell{min-height:0}.panel{border-color:#bbb}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">Portfolio tool · Local browser prototype</div>
+    <h1>AI Image Evaluation Workbench</h1>
+    <p>Review image-identification outputs, inspect object regions, record visual quality findings and produce a structured assessment report.</p>
+    <div class="pills">
+      <span class="pill">Object review</span><span class="pill">Visual quality</span><span class="pill">Evidence capture</span><span class="pill">JSON and CSV export</span>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="notice">
+    <strong>How this workbench operates</strong>
+    It does not run AI inference or upload images. Run the image through your chosen AI tool separately, then enter its actual predictions and confidence values here. Your review decisions remain separate from model outputs. Your work is saved automatically in this browser, so you can close the page and carry on later. Export JSON to keep a permanent copy or to move to another device.
+    <div class="autosave no-print" id="autosaveStatus" role="status" aria-live="polite">Automatic saving: starting…</div>
+  </section>
+
+  <section class="panel">
+    <h2>1. Assessment details</h2>
+    <p class="sub">Identify the image, task and AI output being reviewed.</p>
+    <div class="fields-2">
+      <div class="field"><label for="imageId">Image or sample ID</label><input id="imageId" placeholder="Example: RETAIL-001"></div>
+      <div class="field"><label for="domain">Image domain</label><select id="domain"><option>Retail</option><option>Urban traffic</option><option>Wildlife</option><option>Produce</option><option>General</option></select></div>
+      <div class="field"><label for="toolName">AI tool or model</label><input id="toolName" placeholder="Enter the actual tool or model name"></div>
+      <div class="field"><label for="confidence">Image-level model confidence (%)</label><input id="confidence" type="number" min="0" max="100" step="0.01" placeholder="Optional, as displayed by the model"></div>
+      <div class="field"><label for="reviewer">Reviewer</label><input id="reviewer" placeholder="Reviewer name or identifier"></div>
+      <div class="field"><label for="reviewDate">Review date</label><input id="reviewDate" type="date"></div>
+    </div>
+    <div class="field"><label for="prompt">Original prompt or task instruction</label><textarea id="prompt" placeholder="Paste the instruction used to generate or evaluate the image, if available."></textarea></div>
+    <div class="field"><label for="sourceNotes">Source, permission or licensing notes</label><input id="sourceNotes" placeholder="Where the image came from and whether it may be shared"></div>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>2. Load and inspect an image</h2>
+      <p class="sub">Select a local image. Drag on the image to mark an object or region for review.</p>
+      <div class="field no-print"><label for="imageFile">Image file</label><input id="imageFile" type="file" accept="image/*"></div>
+      <div class="fields-2 no-print">
+        <div class="field"><label for="sessionFile">Resume from saved JSON session</label><input id="sessionFile" type="file" accept=".json,application/json"></div>
+        <div class="field"><label>Restore previous review</label><button id="importSession" class="secondary" type="button" disabled>Import saved session</button><div class="help">Load the original image first, then import its matching JSON export.</div></div>
+      </div>
+      <div class="canvas-shell" id="canvasShell">
+        <div class="empty" id="emptyState">Choose an image to begin.<br><small>Accepted formats depend on your browser.</small></div>
+        <canvas id="imageCanvas" hidden aria-label="Image inspection canvas. Drag to draw a review region."></canvas>
+      </div>
+      <div class="help" id="imageInfo">No image loaded.</div>
+      <div class="actions no-print">
+        <button class="secondary" id="clearBox" type="button" disabled>Clear selected region</button>
+      </div>
+      <p class="help">Overlay legend: red dashed = AI-provided box, green = reviewer box, blue dashed = current selection, amber = image-quality finding. Boxes use original image pixel coordinates. The image itself is not included in exported JSON.</p>
+    </section>
+
+    <section class="panel">
+      <h2>3. Review an AI prediction</h2>
+      <p class="sub">Draw a region first, then record what the AI predicted and what you concluded.</p>
+      <div class="field"><label for="predictedLabel">Model-predicted label</label><input id="predictedLabel" placeholder="Label returned by the AI tool"></div>
+      <div class="field"><label for="reviewedLabel">Reviewer-assessed label</label><input id="reviewedLabel" placeholder="Your reviewed label or class"></div>
+      <div class="fields-2">
+        <div class="field"><label for="objectConfidence">Prediction confidence (%)</label><input id="objectConfidence" type="number" min="0" max="100" step="0.01" placeholder="Optional"></div>
+        <div class="field"><label for="disposition">Review decision</label><select id="disposition"><option value="accepted">Accepted</option><option value="corrected_label">Corrected label</option><option value="poor_localization">Poor localization</option><option value="false_positive">Rejected false positive</option><option value="duplicate_prediction">Duplicate prediction</option><option value="missed_object">Missed object</option><option value="uncertain">Uncertain</option></select></div>
+      </div>
+      <div class="field">
+        <label>AI-provided bounding box (original image pixels, optional)</label>
+        <div class="fields-2">
+          <input id="modelXmin" type="number" min="0" placeholder="Model x minimum" aria-label="Model box x minimum">
+          <input id="modelYmin" type="number" min="0" placeholder="Model y minimum" aria-label="Model box y minimum">
+          <input id="modelXmax" type="number" min="0" placeholder="Model x maximum" aria-label="Model box x maximum">
+          <input id="modelYmax" type="number" min="0" placeholder="Model y maximum" aria-label="Model box y maximum">
+        </div>
+        <div class="help">Enter the coordinates from the AI output if it provides a box. The blue dashed box you draw on the image is the reviewer box.</div>
+      </div>
+      <div class="field"><label for="objectNote">Evidence note</label><textarea id="objectNote" placeholder="Explain what you observed and why you chose this decision."></textarea></div>
+      <div class="help" id="boxStatus">No review region selected.</div>
+      <div class="actions no-print"><button id="addObject" type="button" disabled>Add object review</button></div>
+      <p class="help">For a missed object, draw the visible object region, leave the model-predicted label blank, and enter the reviewer-assessed label.</p>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>4. Record image-quality findings</h2>
+    <p class="sub">Log image-level or region-specific issues separately from model prediction errors. A selected box is attached when available.</p>
+    <div class="fields-2">
+      <div class="field"><label for="defectType">Finding category</label><select id="defectType">
+        <option value="IMG-01|Blur or softness">Blur or softness</option>
+        <option value="IMG-02|Edge integrity">Edge integrity</option>
+        <option value="IMG-03|Low contrast">Low contrast</option>
+        <option value="IMG-04|Low light or exposure">Low light or exposure</option>
+        <option value="IMG-05|Compression artifacts">Compression artifacts</option>
+        <option value="IMG-06|Text legibility">Text legibility</option>
+        <option value="IMG-07|Object separation">Object separation</option>
+        <option value="IMG-08|Occlusion or overlap">Occlusion or overlap</option>
+        <option value="IMG-09|Repeated visual pattern">Repeated visual pattern</option>
+        <option value="IMG-10|Shape or geometry">Shape or geometry</option>
+        <option value="IMG-11|Color or texture">Color or texture</option>
+        <option value="IMG-12|Other">Other</option>
+      </select></div>
+      <div class="field"><label for="severity">Severity</label><select id="severity"><option>Observation</option><option>Minor</option><option>Major</option><option>Critical</option></select></div>
+    </div>
+    <div class="field"><label for="defectNote">Observed evidence and why it matters</label><textarea id="defectNote" placeholder="Describe the visible issue. Do not infer its technical cause without evidence."></textarea></div>
+    <div class="actions no-print"><button class="secondary" id="addDefect" type="button" disabled>Add image-quality finding</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>5. Review register and session metrics</h2>
+    <p class="sub">The figures below describe records entered in this session. They are not benchmark metrics.</p>
+    <div class="metrics">
+      <div class="metric"><b id="metricItems">0</b><span>Object reviews</span></div>
+      <div class="metric"><b id="metricAccepted">0</b><span>Accepted as-is</span></div>
+      <div class="metric"><b id="metricCorrected">0</b><span>Corrected or rejected</span></div>
+      <div class="metric"><b id="metricFindings">0</b><span>Image-quality findings</span></div>
+    </div>
+    <div class="metric" style="margin-top:10px"><b id="metricAcceptance">Not available</b><span>Acceptance rate among decisive model prediction reviews. This is not model accuracy.</span></div>
+    <div class="table-wrap" style="margin-top:15px">
+      <table>
+        <thead><tr><th>Record</th><th>Type</th><th>Labels / category</th><th>Decision / severity</th><th>Region</th><th class="no-print">Action</th></tr></thead>
+        <tbody id="recordsBody"><tr><td colspan="6">No review records yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>6. Image-level quality ratings</h2>
+    <p class="sub">Rate each applicable criterion for the stated task. Choose Not assessed where the evidence is insufficient.</p>
+    <div class="score-grid">
+      <div class="field"><label for="scoreVisibility">Visibility</label><select id="scoreVisibility"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreEdges">Edge integrity</label><select id="scoreEdges"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreSharpness">Sharpness</label><select id="scoreSharpness"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreSeparation">Object separation</label><select id="scoreSeparation"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreText">Text legibility</label><select id="scoreText"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreInstruction">Instruction adherence</label><select id="scoreInstruction"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select><div class="help">Score only when the original prompt or instruction is available.</div></div>
+      <div class="field"><label for="scoreStructure">Structure and alignment</label><select id="scoreStructure"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scoreShape">Shape and packaging integrity</label><select id="scoreShape"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+      <div class="field"><label for="scorePatterns">Pattern consistency</label><select id="scorePatterns"><option value="">Not assessed</option><option value="1">1 · Unusable</option><option value="2">2 · Poor</option><option value="3">3 · Usable with caveats</option><option value="4">4 · Good</option><option value="5">5 · Very good</option></select></div>
+    </div>
+    <div class="fields-2">
+      <div class="field"><label for="outcome">Overall quality decision</label><select id="outcome"><option value="">Select outcome</option><option>Accept for stated visual review</option><option>Accept with caveats</option><option>Needs correction or additional review</option><option>Reject as unsuitable for stated task</option></select></div>
+      <div class="field"><label for="outcomeNotes">Decision rationale</label><textarea id="outcomeNotes" placeholder="Summarize the evidence supporting the overall decision."></textarea></div>
+    </div>
+    <div class="actions no-print">
+      <button id="exportJson" type="button" disabled>Export JSON report</button>
+      <button id="exportCsv" type="button" class="secondary" disabled>Export CSV register</button>
+      <button id="printReport" type="button" class="secondary">Print report</button>
+      <button id="reset" type="button" class="danger">Reset session</button>
+    </div>
+  </section>
+  <p class="score-note">Metric definitions: model confidence is copied from the AI output. Acceptance rate is the share of decisive model-prediction reviews accepted as-is. Label accuracy requires a defined reference-label set and a separate calculation. IoU is the overlap between the AI box and the reviewer box when both are entered. It describes localization overlap, not model accuracy. This workbench does not infer or calculate label accuracy.</p>
+</main>
+<footer><div class="footer">AI Image Identification and Quality Assurance portfolio · Browser-only review prototype · No image or review data is sent to a server by this page. Automatic saving keeps your work only in this browser on this device.</div></footer>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const canvas = $("imageCanvas");
+const ctx = canvas.getContext("2d");
+let sourceImage = null;
+let sourceFile = null;
+let scale = 1;
+let startPoint = null;
+let dragPoint = null;
+let pendingBox = null;
+let records = [];
+let autoImageId="";
+const todayLocal=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);};
+$("reviewDate").value=todayLocal();
+
+const dispositions = {
+  accepted:"Accepted",
+  corrected_label:"Corrected label",
+  poor_localization:"Poor localization",
+  false_positive:"Rejected false positive",
+  duplicate_prediction:"Duplicate prediction",
+  missed_object:"Missed object",
+  uncertain:"Uncertain"
+};
+const dispositionCodes = {
+  accepted:"PRED-01",
+  corrected_label:"PRED-02",
+  false_positive:"PRED-03",
+  missed_object:"PRED-04",
+  poor_localization:"PRED-05",
+  duplicate_prediction:"PRED-06",
+  uncertain:"PRED-07"
+};
+const qualityNames = ["Visibility","Edge integrity","Sharpness","Object separation","Text legibility","Instruction adherence","Structure and alignment","Shape and packaging integrity","Pattern consistency"];
+const scoreIds = ["scoreVisibility","scoreEdges","scoreSharpness","scoreSeparation","scoreText","scoreInstruction","scoreStructure","scoreShape","scorePatterns"];
+
+function getBoxFromPointer(event) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (event.clientX - rect.left) * (canvas.width / rect.width) / scale;
+  const y = (event.clientY - rect.top) * (canvas.height / rect.height) / scale;
+  return {
+    x: Math.max(0,Math.min(sourceImage.naturalWidth,x)),
+    y: Math.max(0,Math.min(sourceImage.naturalHeight,y))
+  };
+}
+function normalizeBox(a,b) {
+  const x1 = Math.min(a.x,b.x), y1 = Math.min(a.y,b.y);
+  const x2 = Math.max(a.x,b.x), y2 = Math.max(a.y,b.y);
+  return {x_min:Math.round(x1),y_min:Math.round(y1),x_max:Math.round(x2),y_max:Math.round(y2),width:Math.round(x2-x1),height:Math.round(y2-y1)};
+}
+function drawCanvas() {
+  if (!sourceImage) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(sourceImage,0,0,canvas.width,canvas.height);
+  const sx = canvas.width / sourceImage.naturalWidth;
+  const sy = canvas.height / sourceImage.naturalHeight;
+  function drawBox(box,color,fill,label,dashed){
+    if(!box)return;
+    ctx.save();
+    ctx.lineWidth=2;
+    ctx.strokeStyle=color;
+    ctx.fillStyle=fill;
+    if(dashed)ctx.setLineDash([6,4]);
+    ctx.strokeRect(box.x_min*sx,box.y_min*sy,box.width*sx,box.height*sy);
+    if(fill)ctx.fillRect(box.x_min*sx,box.y_min*sy,box.width*sx,box.height*sy);
+    ctx.setLineDash([]);
+    ctx.font="bold 12px sans-serif";
+    const width=ctx.measureText(label).width+10;
+    ctx.fillStyle=color;
+    ctx.fillRect(box.x_min*sx,Math.max(0,box.y_min*sy-20),width,20);
+    ctx.fillStyle="#fff";
+    ctx.fillText(label,box.x_min*sx+5,Math.max(14,box.y_min*sy-6));
+    ctx.restore();
+  }
+  records.forEach(r=>{
+    if(r.type==="object_review"){
+      drawBox(r.modelBox,"#bd3434","rgba(189,52,52,.04)","AI: "+(r.predictedLabel||"prediction"),true);
+      drawBox(r.reviewerBox||r.box,"#13784f","rgba(19,120,79,.08)","Review: "+(r.reviewedLabel||r.id),false);
+    } else {
+      drawBox(r.box,"#9a570c","rgba(189,106,16,.10)",r.category||r.id,false);
+    }
+  });
+  if(pendingBox){
+    ctx.save();
+    ctx.strokeStyle="#1769aa";ctx.lineWidth=2;ctx.setLineDash([6,4]);
+    ctx.strokeRect(pendingBox.x_min*sx,pendingBox.y_min*sy,pendingBox.width*sx,pendingBox.height*sy);
+    ctx.restore();
+  }
+}
+function setPendingBox(box) {
+  pendingBox=box;
+  const selected=!!box;
+  $("clearBox").disabled=!selected;
+  $("addObject").disabled=!selected || !sourceImage;
+  $("addDefect").disabled=!sourceImage;
+  $("boxStatus").textContent=selected
+    ? "Selected region: x "+box.x_min+", y "+box.y_min+", width "+box.width+", height "+box.height+" pixels."
+    : "No review region selected.";
+  drawCanvas();
+}
+$("imageFile").addEventListener("change",event=>{
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith("image/")){alert("Please select a supported image file.");event.target.value="";return;}
+  if(records.length>0 && !confirm("Loading another image will clear the current review records. Export your current session before continuing. Continue?")){
+    event.target.value="";
+    return;
+  }
+  loadImage(file);
+});
+function loadImage(file,onLoaded){
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    sourceImage=img;sourceFile=file;pendingBox=null;records=[];
+    scale=Math.min(1,1100/img.naturalWidth);
+    canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+    canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+    canvas.hidden=false;$("emptyState").hidden=true;
+    const curId=$("imageId").value.trim();
+    if(!curId||curId===autoImageId){autoImageId=file.name.replace(/\.[^.]+$/,"");$("imageId").value=autoImageId;}
+    $("imageInfo").textContent=file.name+" · "+img.naturalWidth+" × "+img.naturalHeight+" pixels · "+Math.round(file.size/1024)+" KB";
+    $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=false;
+    renderRecords();drawCanvas();updateExports();
+    URL.revokeObjectURL(url);
+    if(onLoaded)onLoaded();
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);if(onLoaded)onLoaded(new Error("unreadable"));else alert("The selected image could not be opened by this browser.");};
+  img.src=url;
+}
+canvas.addEventListener("pointerdown",event=>{
+  if(!sourceImage)return;
+  startPoint=getBoxFromPointer(event);dragPoint=startPoint;
+  canvas.setPointerCapture(event.pointerId);
+});
+canvas.addEventListener("pointermove",event=>{
+  if(!startPoint)return;
+  dragPoint=getBoxFromPointer(event);
+  pendingBox=normalizeBox(startPoint,dragPoint);
+  drawCanvas();
+});
+canvas.addEventListener("pointerup",event=>{
+  if(!startPoint)return;
+  dragPoint=getBoxFromPointer(event);
+  const box=normalizeBox(startPoint,dragPoint);
+  startPoint=null;dragPoint=null;
+  setPendingBox(box.width>=3&&box.height>=3?box:null);
+});
+canvas.addEventListener("pointercancel",()=>{startPoint=null;dragPoint=null;});
+$("clearBox").addEventListener("click",()=>setPendingBox(null));
+$("sessionFile").addEventListener("change",updateExports);
+
+function normalizeImportedBox(box){
+  if(!box)return null;
+  const values=[box.x_min,box.y_min,box.x_max,box.y_max].map(Number);
+  if(values.some(v=>!Number.isFinite(v)))throw new Error("A saved box contains invalid coordinates.");
+  const [x1,y1,x2,y2]=values;
+  if(x1<0||y1<0||x2>sourceImage.naturalWidth||y2>sourceImage.naturalHeight||x2<=x1||y2<=y1){
+    throw new Error("A saved box is outside the loaded image or has invalid dimensions. Check that you loaded the original image.");
+  }
+  return {x_min:x1,y_min:y1,x_max:x2,y_max:y2,width:x2-x1,height:y2-y1};
+}
+function restoreField(id,value){
+  $(id).value=value===null||value===undefined?"":String(value);
+}
+$("importSession").addEventListener("click",async()=>{
+  const file=$("sessionFile").files && $("sessionFile").files[0];
+  if(!sourceImage||!sourceFile){alert("Load the original source image before importing a saved session.");return;}
+  if(!file){alert("Select a saved JSON session first.");return;}
+  try{
+    const payload=JSON.parse(await file.text());
+    if(payload.schemaVersion!=="1.0"||!payload.assessment||!Array.isArray(payload.records)){
+      throw new Error("This file is not a supported AI Image Evaluation Workbench session (schema version 1.0).");
+    }
+    const assessment=payload.assessment;
+    if(assessment.sourceImageWidth&&assessment.sourceImageHeight&&
+       (Number(assessment.sourceImageWidth)!==sourceImage.naturalWidth||Number(assessment.sourceImageHeight)!==sourceImage.naturalHeight)){
+      throw new Error("The loaded image dimensions do not match the saved session. Load the original image used for that review.");
+    }
+    const identityMismatch=
+      (assessment.sourceFilename&&assessment.sourceFilename!==sourceFile.name)||
+      (assessment.sourceFileSizeBytes&&Number(assessment.sourceFileSizeBytes)!==sourceFile.size);
+    if(identityMismatch&&!confirm("The image filename or file size differs from the saved session. The dimensions match, but the image may not be identical. Import only if you have verified that this is the same source image.")){
+      return;
+    }
+    const restored=payload.records.map(record=>{
+      if(!record||!["object_review","image_finding"].includes(record.type))throw new Error("The saved session contains an unsupported record type.");
+      const normalized={...record};
+      normalized.box=normalizeImportedBox(record.box);
+      normalized.modelBox=normalizeImportedBox(record.modelBox);
+      normalized.reviewerBox=normalizeImportedBox(record.reviewerBox);
+      if(record.type==="object_review"){
+        if(!dispositions[record.disposition])throw new Error("A saved object review contains an unknown decision.");
+        normalized.dispositionLabel=record.dispositionLabel||dispositions[record.disposition];
+        normalized.defectCode=record.defectCode||dispositionCodes[record.disposition];
+      }else{
+        normalized.category=String(record.category||"Other");
+        normalized.severity=["Observation","Minor","Major","Critical"].includes(record.severity)?record.severity:"Observation";
+      }
+      return normalized;
+    });
+    if(records.length>0&&!confirm("Importing this session will replace the review records currently in the workbench. Continue?"))return;
+    restoreField("imageId",assessment.imageId);
+    if(["Retail","Urban traffic","Wildlife","Produce","General"].includes(assessment.domain))restoreField("domain",assessment.domain);
+    restoreField("toolName",assessment.aiToolOrModel);
+    restoreField("confidence",assessment.imageLevelModelReportedConfidencePercent);
+    restoreField("reviewer",assessment.reviewer);
+    restoreField("reviewDate",assessment.reviewDate);
+    restoreField("prompt",assessment.originalPrompt);
+    restoreField("sourceNotes",assessment.sourceOrLicenseNotes);
+    restoreField("outcome",assessment.overallOutcome);
+    restoreField("outcomeNotes",assessment.overallRationale);
+    const scoreMap={
+      "Visibility":"scoreVisibility",
+      "Edge integrity":"scoreEdges",
+      "Sharpness":"scoreSharpness",
+      "Object separation":"scoreSeparation",
+      "Text legibility":"scoreText",
+      "Instruction adherence":"scoreInstruction",
+      "Structure and alignment":"scoreStructure",
+      "Shape and packaging integrity":"scoreShape",
+      "Pattern consistency":"scorePatterns"
+    };
+    Object.entries(scoreMap).forEach(([name,id])=>restoreField(id,payload.qualityScores&&payload.qualityScores[name]));
+    records=restored;
+    pendingBox=null;
+    $("clearBox").disabled=true;
+    $("addObject").disabled=true;
+    $("addDefect").disabled=false;
+    $("boxStatus").textContent="Saved session imported. Select a region to continue reviewing.";
+    renderRecords();drawCanvas();updateExports();
+    alert("Saved review session imported. Check the assessment details and records before continuing.");
+  }catch(error){
+    alert("Session import failed: "+error.message);
+  }
+});
+
+function nextId(prefix){
+  const type=prefix==="OBJ"?"object_review":"image_finding";
+  const used=records.filter(r=>r.type===type).map(r=>Number(String(r.id).split("-")[1])||0);
+  return prefix+"-"+String(Math.max(0,...used)+1).padStart(3,"0");
+}
+function validConfidence(value){
+  if(value==="")return null;
+  const n=Number(value);
+  return Number.isFinite(n)&&n>=0&&n<=100?n:null;
+}
+function readModelBox(){
+  const ids=["modelXmin","modelYmin","modelXmax","modelYmax"];
+  const raw=ids.map(id=>$(id).value.trim());
+  if(raw.every(v=>v===""))return null;
+  if(raw.some(v=>v===""))throw new Error("Enter all four model box coordinates or leave all four blank.");
+  const values=raw.map(Number);
+  if(values.some(v=>!Number.isFinite(v)))throw new Error("Model box coordinates must be numeric.");
+  const [x1,y1,x2,y2]=values;
+  if(x1<0||y1<0||x2>sourceImage.naturalWidth||y2>sourceImage.naturalHeight||x2<=x1||y2<=y1){
+    throw new Error("Model box coordinates must be within the image and have positive width and height.");
+  }
+  return {x_min:x1,y_min:y1,x_max:x2,y_max:y2,width:x2-x1,height:y2-y1};
+}
+function computeIou(a,b){
+  if(!a||!b)return null;
+  const ix=Math.max(0,Math.min(a.x_max,b.x_max)-Math.max(a.x_min,b.x_min));
+  const iy=Math.max(0,Math.min(a.y_max,b.y_max)-Math.max(a.y_min,b.y_min));
+  const inter=ix*iy;
+  const union=a.width*a.height+b.width*b.height-inter;
+  return union>0?Math.round(inter/union*1000)/1000:null;
+}
+function addRecord(record){
+  records.push(record);
+  pendingBox=null;
+  $("clearBox").disabled=true;$("addObject").disabled=true;
+  $("boxStatus").textContent="No review region selected.";
+  renderRecords();drawCanvas();updateExports();
+}
+$("addObject").addEventListener("click",()=>{
+  if(!sourceImage||!pendingBox){alert("Load an image and draw a review region first.");return;}
+  const disposition=$("disposition").value;
+  const predicted=$("predictedLabel").value.trim();
+  const reviewed=$("reviewedLabel").value.trim();
+  if(disposition!=="missed_object"&&!predicted){alert("Enter the model-predicted label.");return;}
+  if(!reviewed&&disposition!=="false_positive"&&disposition!=="uncertain"){alert("Enter the reviewer-assessed label.");return;}
+  const confidence=validConfidence($("objectConfidence").value);
+  if($("objectConfidence").value!==""&&confidence===null){alert("Confidence must be between 0 and 100.");return;}
+  let modelBox=null;
+  try { modelBox=readModelBox(); } catch(error) { alert(error.message); return; }
+  addRecord({
+    id:nextId("OBJ"),type:"object_review",imageId:$("imageId").value.trim(),
+    predictedLabel:predicted,reviewedLabel:reviewed,confidencePercent:confidence,
+    disposition,dispositionLabel:dispositions[disposition],defectCode:dispositionCodes[disposition],
+    note:$("objectNote").value.trim(),modelBox,reviewerBox:pendingBox,box:pendingBox,iou:computeIou(modelBox,pendingBox),createdAt:new Date().toISOString()
+  });
+  $("predictedLabel").value="";$("reviewedLabel").value="";$("objectConfidence").value="";$("objectNote").value="";
+  ["modelXmin","modelYmin","modelXmax","modelYmax"].forEach(id=>$(id).value="");
+});
+$("addDefect").addEventListener("click",()=>{
+  if(!sourceImage){alert("Load an image first.");return;}
+  const value=$("defectType").value.split("|");
+  const note=$("defectNote").value.trim();
+  if(!note){alert("Describe the visible finding before adding it.");return;}
+  addRecord({
+    id:nextId("FIND"),type:"image_finding",imageId:$("imageId").value.trim(),
+    defectCode:value[0],category:value[1],severity:$("severity").value,
+    note,box:pendingBox,createdAt:new Date().toISOString()
+  });
+  $("defectNote").value="";
+});
+function addCell(row,value){
+  const td=document.createElement("td");td.textContent=value??"";row.appendChild(td);return td;
+}
+function renderRecords(){
+  const body=$("recordsBody");body.replaceChildren();
+  if(records.length===0){
+    const row=document.createElement("tr"),cell=document.createElement("td");
+    cell.colSpan=6;cell.textContent="No review records yet.";row.appendChild(cell);body.appendChild(row);
+  } else {
+    records.forEach(record=>{
+      const row=document.createElement("tr");
+      addCell(row,record.id);
+      addCell(row,record.type==="object_review"?"Object review":"Image finding");
+      const labels=record.type==="object_review"
+        ? "Model: "+(record.predictedLabel||"Not predicted")+" / Review: "+(record.reviewedLabel||"Not assigned")
+        : record.defectCode+" "+record.category;
+      addCell(row,labels);
+      const decision=record.type==="object_review"?record.dispositionLabel:record.severity;
+      const decisionCell=addCell(row,decision);
+      const tag=document.createElement("span");tag.className="tag "+(record.disposition==="accepted"?"accepted":record.severity==="Critical"||record.disposition==="false_positive"?"rejected":"caution");tag.textContent=decision;
+      decisionCell.replaceChildren(tag);
+      const b=record.type==="object_review"?(record.reviewerBox||record.box):record.box;
+      const m=record.modelBox;
+      const region=b?(b.x_min+","+b.y_min+" to "+b.x_max+","+b.y_max+" px"):"Image level";
+      addCell(row,record.type==="object_review"?(m?"AI: "+m.x_min+","+m.y_min+" to "+m.x_max+","+m.y_max+" px | Review: "+region+(record.iou===null||record.iou===undefined?"":" | IoU "+record.iou):"Review: "+region):region);
+      const action=addCell(row,"");
+      const button=document.createElement("button");button.type="button";button.className="secondary no-print";button.textContent="Remove";
+      button.addEventListener("click",()=>{records=records.filter(item=>item.id!==record.id);renderRecords();drawCanvas();updateExports();});
+      action.appendChild(button);body.appendChild(row);
+    });
+  }
+  const objects=records.filter(r=>r.type==="object_review");
+  const accepted=objects.filter(r=>r.disposition==="accepted").length;
+  const corrected=objects.filter(r=>["corrected_label","poor_localization","false_positive","duplicate_prediction"].includes(r.disposition)).length;
+  const findings=records.filter(r=>r.type==="image_finding").length;
+  const decisive=objects.filter(r=>r.disposition!=="uncertain"&&r.disposition!=="missed_object");
+  const rate=decisive.length?Math.round(accepted/decisive.length*1000)/10:null;
+  $("metricItems").textContent=objects.length;
+  $("metricAccepted").textContent=accepted;
+  $("metricCorrected").textContent=corrected;
+  $("metricFindings").textContent=findings;
+  $("metricAcceptance").textContent=rate===null?"Not available":rate+"%";
+  scheduleSave();
+}
+function updateExports(){
+  const loaded=!!sourceImage;
+  $("exportJson").disabled=!loaded;
+  $("exportCsv").disabled=!loaded||records.length===0;
+  $("importSession").disabled=!loaded||!($("sessionFile").files&&$("sessionFile").files.length);
+}
+function getPayload(){
+  const objects=records.filter(r=>r.type==="object_review");
+  const accepted=objects.filter(r=>r.disposition==="accepted").length;
+  const decisive=objects.filter(r=>r.disposition!=="uncertain"&&r.disposition!=="missed_object");
+  const qualityScores={};
+  scoreIds.forEach((id,i)=>qualityScores[qualityNames[i]]=$(id).value===""?null:Number($(id).value));
+  return {
+    schemaVersion:"1.0",
+    assessment:{
+      imageId:$("imageId").value.trim(),domain:$("domain").value,
+      sourceFilename:sourceFile?sourceFile.name:null,
+      sourceFileType:sourceFile?sourceFile.type:null,
+      sourceFileSizeBytes:sourceFile?sourceFile.size:null,
+      sourceImageWidth:sourceImage?sourceImage.naturalWidth:null,
+      sourceImageHeight:sourceImage?sourceImage.naturalHeight:null,
+      sourceOrLicenseNotes:$("sourceNotes").value.trim(),
+      originalPrompt:$("prompt").value.trim(),
+      aiToolOrModel:$("toolName").value.trim(),
+      imageLevelModelReportedConfidencePercent:validConfidence($("confidence").value),
+      reviewer:$("reviewer").value.trim(),reviewDate:$("reviewDate").value,
+      overallOutcome:$("outcome").value,
+      overallRationale:$("outcomeNotes").value.trim()
+    },
+    qualityScores,
+    records,
+    sessionSummary:{
+      objectReviewCount:objects.length,
+      acceptedAsIs:accepted,
+      decisiveModelPredictionReviews:decisive.length,
+      acceptanceRateAmongDecisiveModelPredictionReviewsPercent:decisive.length?Math.round(accepted/decisive.length*1000)/10:null,
+      missedObjectCount:objects.filter(r=>r.disposition==="missed_object").length,
+      uncertainCount:objects.filter(r=>r.disposition==="uncertain").length,
+      imageFindingCount:records.filter(r=>r.type==="image_finding").length
+    },
+    metricDefinitions:{
+      modelConfidence:"Value reported by the AI tool. It is not human accuracy.",
+      acceptanceRate:"Accepted-as-is predictions divided by decisive model-prediction reviews recorded in this session. Not model accuracy.",
+      iou:"Intersection over union of the AI-provided box and the reviewer box as entered. It measures box overlap only, not model accuracy.",
+      labelAccuracy:"Not calculated. Requires independently established reference labels and an agreed evaluation protocol."
+    },
+    exportedAt:new Date().toISOString(),
+    imageNotEmbedded:true
+  };
+}
+function download(name,content,type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$("exportJson").addEventListener("click",()=>{
+  if(!sourceImage)return;
+  const id=($("imageId").value.trim()||"image-review").replace(/[^a-z0-9_-]+/gi,"_");
+  download(id+"_assessment.json",JSON.stringify(getPayload(),null,2),"application/json");
+});
+$("exportCsv").addEventListener("click",()=>{
+  if(!sourceImage||records.length===0)return;
+  const columns=["image_id","id","type","predictedLabel","reviewedLabel","confidencePercent","disposition","defectCode","category","severity","model_box_x_min_px","model_box_y_min_px","model_box_x_max_px","model_box_y_max_px","review_box_x_min_px","review_box_y_min_px","review_box_x_max_px","review_box_y_max_px","note","createdAt","iou","domain","reviewer","review_date","overall_outcome",...qualityNames.map(n=>"quality_"+n.toLowerCase().replace(/[^a-z0-9]+/g,"_"))];
+  const payload=getPayload(),a=payload.assessment,q=payload.qualityScores;
+  const quote=value=>{let s=String(value??"");const first=s.trimStart()[0];if(first&&"=+-@".includes(first))s="\'"+s;return '"' + s.replace(/"/g,'""') + '"' ;};
+  const rows=[columns.map(quote).join(",")];
+  records.forEach(r=>{
+    const b=r.reviewerBox||r.box||{};
+    const m=r.modelBox||{};
+    const row=[r.imageId,r.id,r.type,r.predictedLabel,r.reviewedLabel,r.confidencePercent,r.disposition,r.defectCode,r.category,r.severity,m.x_min,m.y_min,m.x_max,m.y_max,b.x_min,b.y_min,b.x_max,b.y_max,r.note,r.createdAt,r.iou,a.domain,a.reviewer,a.reviewDate,a.overallOutcome,...qualityNames.map(n=>q[n])];
+    rows.push(row.map(quote).join(","));
+  });
+  const id=($("imageId").value.trim()||"image-review").replace(/[^a-z0-9_-]+/gi,"_");
+  download(id+"_review_register.csv",rows.join("\r\n"),"text/csv;charset=utf-8");
+});
+$("printReport").addEventListener("click",()=>window.print());
+$("reset").addEventListener("click",()=>{
+  if(!confirm("Reset this session? Export any work you need before continuing."))return;
+  records=[];sourceImage=null;sourceFile=null;pendingBox=null;autoImageId="";
+  $("imageFile").value="";$("sessionFile").value="";canvas.hidden=true;$("emptyState").hidden=false;
+  $("imageInfo").textContent="No image loaded.";
+  $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=true;
+  $("boxStatus").textContent="No review region selected.";
+  ["imageId","toolName","confidence","reviewer","prompt","sourceNotes","predictedLabel","reviewedLabel","objectConfidence","objectNote","defectNote","outcomeNotes"].forEach(id=>$(id).value="");
+  $("reviewDate").value=todayLocal();
+  [...scoreIds,"outcome"].forEach(id=>$(id).value="");
+  renderRecords();updateExports();
+  clearSaved();
+});
+[...scoreIds,"outcome"].forEach(id=>$(id).addEventListener("change",updateExports));
+
+/* ---------- Automatic saving (browser-only, IndexedDB) ---------- */
+const DB_NAME="ai-image-evaluation-workbench",STORE="sessions",KEY="current";
+const fieldEls=[...document.querySelectorAll("main input, main textarea, main select")].filter(el=>el.id&&el.type!=="file");
+let db=null,autosaveReady=false,saveTimer=null;
+function setStatus(text,warn){const el=$("autosaveStatus");el.textContent=text;el.classList.toggle("warn",!!warn);}
+function timeText(iso){try{return new Date(iso).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});}catch(e){return iso;}}
+function openDb(){
+  return new Promise((resolve,reject)=>{
+    if(!("indexedDB" in window))return reject(new Error("unsupported"));
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=()=>req.result.createObjectStore(STORE);
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+function dbRequest(mode,fn){
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,mode);const req=fn(tx.objectStore(STORE));
+    tx.oncomplete=()=>resolve(req.result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });
+}
+function hasContent(){
+  return !!sourceImage||records.length>0||fieldEls.some(el=>el.id!=="reviewDate"&&el.id!=="domain"&&el.id!=="disposition"&&el.id!=="defectType"&&el.id!=="severity"&&el.value.trim()!=="");
+}
+function scheduleSave(){
+  if(!autosaveReady)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveNow,400);
+}
+async function saveNow(){
+  clearTimeout(saveTimer);saveTimer=null;
+  if(!autosaveReady||!db)return;
+  try{
+    if(!hasContent()){await dbRequest("readwrite",s=>s.delete(KEY));setStatus("Automatic saving is on. Your work will be kept in this browser.");return;}
+    const fields={};fieldEls.forEach(el=>fields[el.id]=el.value);
+    const savedAt=new Date().toISOString();
+    await dbRequest("readwrite",s=>s.put({version:1,savedAt,fields,records,file:sourceFile||null,fileName:sourceFile?sourceFile.name:null},KEY));
+    setStatus("All changes saved in this browser · "+timeText(savedAt));
+  }catch(error){
+    setStatus("Automatic saving failed ("+(error&&error.name||"storage error")+"). Export JSON to keep your work.",true);
+  }
+}
+async function clearSaved(){
+  clearTimeout(saveTimer);
+  if(!db)return;
+  try{await dbRequest("readwrite",s=>s.delete(KEY));setStatus("Session reset. Automatic saving is on.");}catch(e){}
+}
+function applySaved(saved){
+  Object.entries(saved.fields||{}).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=="file")el.value=value??"";});
+  if(sourceFile&&$("imageId").value===sourceFile.name.replace(/\.[^.]+$/,""))autoImageId=$("imageId").value;
+  records=Array.isArray(saved.records)?saved.records:[];
+  pendingBox=null;
+  $("clearBox").disabled=true;$("addObject").disabled=true;$("addDefect").disabled=!sourceImage;
+  renderRecords();drawCanvas();updateExports();
+}
+document.querySelector("main").addEventListener("input",e=>{if(e.target.type!=="file")scheduleSave();});
+document.querySelector("main").addEventListener("change",e=>{if(e.target.type!=="file")scheduleSave();});
+window.addEventListener("pagehide",()=>{if(saveTimer)saveNow();});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&saveTimer)saveNow();});
+
+renderRecords();updateExports();
+(async()=>{
+  try{db=await openDb();}catch(error){setStatus("Automatic saving isn't available in this browser (for example in private browsing). Export JSON before closing the page.",true);return;}
+  let saved=null;
+  try{saved=await dbRequest("readonly",s=>s.get(KEY));}catch(e){}
+  const finish=message=>{autosaveReady=true;setStatus(message);};
+  if(!saved){finish("Automatic saving is on. Your work will be kept in this browser.");return;}
+  const restoredText="Restored your review saved "+timeText(saved.savedAt)+".";
+  if(saved.file instanceof Blob){
+    const file=saved.file instanceof File?saved.file:new File([saved.file],saved.fileName||"restored-image",{type:saved.file.type});
+    loadImage(file,error=>{
+      if(error){applySaved(saved);finish(restoredText+" The image couldn't be reopened. Load "+(saved.fileName||"the original image")+" again.");return;}
+      applySaved(saved);
+      $("imageInfo").textContent+=" · restored from automatic save";
+      $("boxStatus").textContent="Saved review restored. Select a region to continue reviewing.";
+      finish(restoredText);
+    });
+  }else{
+    applySaved(saved);
+    finish(restoredText);
+  }
+})();
+})();
+</script>
+</body>
+</html>
