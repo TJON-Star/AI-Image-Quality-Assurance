@@ -4,7 +4,6 @@ Hands-on portfolio showcasing practical use of AI image-identification and compu
 
 ### 👉 Live portfolio: **[pixel-clue-gallery.lovable.app](https://pixel-clue-gallery.lovable.app/)**
 
-[![Home page of the portfolio](https://tjohnson-tech.lovable.app/__l5e/assets-v1/edd27177-c089-4091-a6ec-fea346eba024/portfolio-home.jpg)](https://tjohnson-tech.lovable.app)
 
 ---
 
@@ -12,15 +11,13 @@ Hands-on portfolio showcasing practical use of AI image-identification and compu
 
 Case studies in urban street object detection, retail shelf product recognition, wildlife camera-trap identification and produce defect detection: each shown with the bounding boxes and labels I reviewed.
 
-[![Projects page with annotated case studies](https://tjohnson-tech.lovable.app/__l5e/assets-v1/ad367a43-f6d2-437c-ae6f-df2b6a028096/portfolio-projects.jpg)](https://tjohnson-tech.lovable.app/projects)
 
 ## Try AI: live demo
 
 Upload any photo and an AI model identifies the objects in it and draws a labelled box around each one. Below, it found a giraffe, two zebras and three trees in a wildlife photo.
 
-[![Try AI demo detecting a giraffe and zebras](https://tjohnson-tech.lovable.app/__l5e/assets-v1/5c9af317-ed10-4ed7-a42b-508337bacc99/portfolio-try-ai.jpg)](https://tjohnson-tech.lovable.app/identify)
 
-**[Try it yourself →](https://tjohnson-tech.lovable.app/identify)**
+**[Try it yourself →](https://pixel-clue-gallery.lovable.app/)**
 
 ## About
 
@@ -33,7 +30,6 @@ My background and skills:
 - Edge-case handling (blur, low light, overlap, partial views)
 - Reporting
 
-[![About page](https://tjohnson-tech.lovable.app/__l5e/assets-v1/c06c4ced-1a48-4430-9faf-ea1dee8b2108/portfolio-about.jpg)](https://tjohnson-tech.lovable.app/about)
 
 ## Contact
 
