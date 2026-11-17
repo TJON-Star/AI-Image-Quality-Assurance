@@ -2,7 +2,7 @@
 
 Hands-on portfolio showcasing practical use of AI image-identification and computer-vision tools across retail, urban traffic, wildlife and produce imagery. Focus areas include object detection, image classification, visual inspection, annotation and label review, edge-case analysis, and structured quality reporting.
 
-### 👉 Live portfolio: **[tjohnson-tech.lovable.app](https://tjohnson-tech.lovable.app)**
+### 👉 Live portfolio: **[pixel-clue-gallery.lovable.app](https://pixel-clue-gallery.lovable.app/)**
 
 [![Home page of the portfolio](https://tjohnson-tech.lovable.app/__l5e/assets-v1/edd27177-c089-4091-a6ec-fea346eba024/portfolio-home.jpg)](https://tjohnson-tech.lovable.app)
 
@@ -37,9 +37,9 @@ My background and skills:
 
 ## Contact
 
-Have an image identification or dataset QA project? Send me a message through the portfolio or email **Taiwojohnson1989@gmail.com**.
+Have an image identification or dataset QA project? Send me a message through the portfolio website or email **Taiwojohnson1989@gmail.com**.
 
-[![Contact form](https://tjohnson-tech.lovable.app/__l5e/assets-v1/b08ad7be-2ceb-49b6-9729-feab5e595b57/portfolio-contact.jpg)](https://tjohnson-tech.lovable.app/contact)
+[Open the portfolio website](https://pixel-clue-gallery.lovable.app/)
 
 ---
 
