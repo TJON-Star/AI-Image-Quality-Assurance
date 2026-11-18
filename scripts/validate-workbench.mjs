@@ -26,7 +26,11 @@ for (const id of requiredIds) {
 }
 
 assert.ok(html.includes("normalizeImportedBox"), "Saved session import must validate stored image coordinates.");
-assert.ok(html.includes("Loading another image will clear the current review records"), "Replacing an image must warn before clearing review records.");
+const imageReplacementGuard = /if\\s*\\(\\s*records\\.length\\s*>\\s*0\\s*&&\\s*!confirm\\(\\s*"Loading another image will clear this review's records\\./;
+assert.ok(
+  imageReplacementGuard.test(html),
+  "Replacing an image must require confirmation before clearing existing review records."
+);
 assert.ok(html.includes("touch-action:none"), "Canvas must support direct pointer drawing without browser touch gestures.");
 assert.ok(html.includes("const todayLocal"), "Review dates must use the local calendar date.");
 assert.ok(html.includes('let autoImageId = ""'), "Automatic image ID state must be initialized.");
