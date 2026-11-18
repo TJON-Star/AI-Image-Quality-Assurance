@@ -2,7 +2,7 @@
 
 Hands-on portfolio showcasing practical use of AI image-identification and computer-vision tools across retail, urban traffic, wildlife and produce imagery. Focus areas include object detection, image classification, visual inspection, annotation and label review, edge-case analysis, and structured quality reporting.
 
-### 👉 Live portfolio: **[pixel-clue-gallery.lovable.app](https://pixel-clue-gallery.lovable.app/)**
+### 👉 Live portfolio: **[tjohnson-tech.lovable.app](https://tjohnson-tech.lovable.app/)**
 
 
 ---
@@ -17,7 +17,7 @@ Case studies in urban street object detection, retail shelf product recognition,
 Upload any photo and an AI model identifies the objects in it and draws a labelled box around each one. Below, it found a giraffe, two zebras and three trees in a wildlife photo.
 
 
-**[Try it yourself →](https://pixel-clue-gallery.lovable.app/)**
+**[Try it yourself →](https://tjohnson-tech.lovable.app/)**
 
 ## About
 
@@ -35,7 +35,7 @@ My background and skills:
 
 Have an image identification or dataset QA project? Send me a message through the portfolio website or email **Taiwojohnson1989@gmail.com**.
 
-[Open the portfolio website](https://pixel-clue-gallery.lovable.app/)
+[Open the portfolio website](https://tjohnson-tech.lovable.app/)
 
 ---
 
