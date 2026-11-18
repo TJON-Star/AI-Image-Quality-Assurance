@@ -26,7 +26,7 @@ for (const id of requiredIds) {
 }
 
 assert.ok(html.includes("normalizeImportedBox"), "Saved session import must validate stored image coordinates.");
-const imageReplacementGuard = /if\\s*\\(\\s*records\\.length\\s*>\\s*0\\s*&&\\s*!confirm\\(\\s*"Loading another image will clear this review's records\\./;
+const imageReplacementGuard = /if\s*\(\s*records\.length\s*>\s*0\s*&&\s*!confirm\(\s*"Loading another image will clear this review's records\./;
 assert.ok(
   imageReplacementGuard.test(html),
   "Replacing an image must require confirmation before clearing existing review records."
