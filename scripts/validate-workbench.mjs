@@ -35,7 +35,11 @@ assert.ok(html.includes("touch-action:none"), "Canvas must support direct pointe
 assert.ok(html.includes("const todayLocal"), "Review dates must use the local calendar date.");
 assert.ok(html.includes('let autoImageId = ""'), "Automatic image ID state must be initialized.");
 assert.ok(html.includes('pendingBox=null;autoImageId=""'), "Reset must clear automatic image ID state.");
-assert.ok(html.includes('autoImageId=$("imageId").value===filenameId?filenameId:""'), "Session restoration must re-establish automatic versus manual image ID state.");
+assert.ok(
+  /loadImage\(file,error=>\{\s*applySaved\(saved\);/.test(html) &&
+  html.includes('autoImageId=file.name.replace'),
+  "Session restoration must reload the source image before applying saved review fields."
+);
 
 const nextIdMatch = html.match(/function nextId\(prefix\)\{[\s\S]*?\n\}/);
 assert.ok(nextIdMatch, "Workbench must define the review-record ID generator.");
