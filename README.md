@@ -1,71 +1,95 @@
 # AI Image Identification & Quality Assurance
 
-Hands-on portfolio showcasing practical use of AI image-identification and computer-vision tools across retail, urban traffic, wildlife and produce imagery. Focus areas include object detection, image classification, visual inspection, annotation and label review, edge-case analysis, and structured quality reporting.
+A practical portfolio showcasing image identification, computer-vision review and image-quality assurance across retail, urban traffic, wildlife and produce imagery.
 
-### 👉 Live portfolio: **[tjohnson-tech.lovable.app](https://tjohnson-tech.lovable.app/)**
+<p align="center">
+  <a href="https://tjohnson-tech.lovable.app/">
+    <img src="https://tjohnson-tech.lovable.app/__l5e/assets-v1/edd27177-c089-4091-a6ec-fea346eba024/portfolio-home.jpg" alt="Tjohnson Tech portfolio homepage" width="100%">
+  </a>
+</p>
 
+<p align="center">
+  <strong><a href="https://tjohnson-tech.lovable.app/">Open the live portfolio</a></strong>
+  &nbsp; · &nbsp;
+  <strong><a href="https://tjohnson-tech.lovable.app/identify">Try AI image identification</a></strong>
+  &nbsp; · &nbsp;
+  <strong><a href="https://github.com/TJON-Star/AI-Image-Quality-Assurance">View source on GitHub</a></strong>
+</p>
 
----
+## Portfolio overview
 
-## Projects
+The live application presents practical examples of image identification and review. The work covers object detection, image classification, visual inspection, annotation and label review, edge-case handling, and structured quality reporting.
 
-Case studies in urban street object detection, retail shelf product recognition, wildlife camera-trap identification and produce defect detection: each shown with the bounding boxes and labels I reviewed.
+### Project gallery
 
+<p align="center">
+  <img src="https://tjohnson-tech.lovable.app/__l5e/assets-v1/ad367a43-f6d2-437c-ae6f-df2b6a028096/portfolio-projects.jpg" alt="Portfolio projects gallery" width="100%">
+</p>
 
-## Try AI: live demo
+The project examples cover:
 
-Upload any photo and an AI model identifies the objects in it and draws a labelled box around each one. Below, it found a giraffe, two zebras and three trees in a wildlife photo.
+- Urban street object detection
+- Retail shelf product recognition
+- Wildlife camera-trap identification
+- Produce defect detection
 
+### Try AI: image identification
 
-**[Try it yourself →](https://tjohnson-tech.lovable.app/)**
+<p align="center">
+  <img src="https://tjohnson-tech.lovable.app/__l5e/assets-v1/5c9af317-ed10-4ed7-a42b-508337bacc99/portfolio-try-ai.jpg" alt="AI image identification interface" width="100%">
+</p>
 
-## About
+Upload an image in the live application to see the AI identification experience. Model predictions should be treated as outputs to review, not as independently verified ground truth.
 
-My background and skills:
-
-- Image classification
-- Object detection (bounding boxes)
-- Label quality review
-- Guideline writing
-- Edge-case handling (blur, low light, overlap, partial views)
-- Reporting
-
-
-## Contact
-
-Have an image identification or dataset QA project? Send me a message through the portfolio website or email **Taiwojohnson1989@gmail.com**.
-
-[Open the portfolio website](https://tjohnson-tech.lovable.app/)
-
----
-
-Built with TanStack Start, React, TypeScript and Tailwind CSS, with Lovable Cloud powering the contact form and AI identification.
-
-## Case study documentation
-
-The repository now includes dedicated written case studies for domain-specific visual assessment.
-
-- [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md): comprehensive retail image quality review and assessment criteria.
-- [Case Studies Index](case-studies/README.md): overview of the retail and urban traffic assessment tracks.
-- [Lagos Traffic Scene Visual Assessment](case-studies/lagos-traffic-scene-visual-assessment/README.md): separate urban traffic image review.
+**[Open the AI image identification demo](https://tjohnson-tech.lovable.app/identify)**
 
 ## Evaluation workbench
 
-**[Open the AI Image Evaluation Workbench](https://tjon-star.github.io/AI-Image-Quality-Assurance/evaluation-workbench/)** in a modern browser. It loads as a normal web page: load a local image, mark object regions, compare AI-provided and reviewer-drawn boxes, record prediction decisions, log visual quality findings, rate image-level criteria, and export JSON or CSV review records. Your review is saved in your own browser as you work, so you can close the tab and pick up where you left off, and each image keeps its own separate review.
+**[Open the AI Image Evaluation Workbench](https://tjon-star.github.io/AI-Image-Quality-Assurance/evaluation-workbench/)**
 
-The workbench does not run AI inference. Predictions and confidence values must be copied from the selected AI tool. Review data remains in the browser until exported. Saved JSON sessions can be imported later after reloading the same source image. Nine optional quality ratings cover visibility, edge integrity, sharpness, object separation, text legibility, instruction adherence, structure and alignment, shape integrity, and pattern consistency.
+The standalone browser-based workbench supports:
 
-A downloadable copy of the page is also available: [evaluation-workbench/index.html](https://raw.githubusercontent.com/TJON-Star/AI-Image-Quality-Assurance/main/evaluation-workbench/index.html). Save it and open the saved file in a browser. Opening that address directly shows the page source as text instead of running it.
+- Loading a local image and marking object regions
+- Recording model-predicted and reviewer-assessed labels
+- Comparing AI-provided and reviewer-drawn bounding boxes
+- Recording prediction decisions and visual-quality findings
+- Rating image-level quality criteria
+- Exporting review records as JSON or CSV
+
+The workbench does not run AI inference. Predictions and confidence values must be copied from the selected AI tool. Review data remains in the browser until exported. The exported JSON does not embed the source image.
+
+Supporting documentation:
 
 - [Workbench instructions](evaluation-workbench/README.md)
 - [Defect taxonomy](evaluation-workbench/defect-taxonomy.md)
 - [Annotation and review guide](evaluation-workbench/annotation-guide.md)
-- [Tools and capabilities](tools-and-workflows/README.md)
 - [Assessment report template](reports/assessment-report-template.md)
 
-## Automated workbench checks
+## Case studies
 
-A GitHub Actions workflow validates the workbench's inline JavaScript syntax, required interface controls, JSON and CSV templates, and the repository's no-em-dash documentation style when relevant files change. These are static checks. They do not replace manual browser testing or verify AI model performance.
+- [Retail Product Image Quality and Visual Inspection](case-studies/retail-product-image-quality-assessment/README.md)
+- [Lagos Traffic Scene Visual Assessment](case-studies/lagos-traffic-scene-visual-assessment/README.md)
+- [Case Studies Index](case-studies/README.md)
 
-- [Validation script](scripts/validate-workbench.mjs)
-- [GitHub Actions workflow](.github/workflows/validate-workbench.yml)
+## Methods and capabilities
+
+- Image classification
+- Object detection and bounding-box review
+- Label quality assessment
+- Annotation and guideline review
+- Edge-case handling, including blur, low light, overlap and partial visibility
+- Structured findings and reporting
+
+## About and contact
+
+This repository documents portfolio projects and simulated/practice work. It does not represent client engagements unless explicitly identified as such.
+
+For image-identification or dataset-QA enquiries, use the [contact page](https://tjohnson-tech.lovable.app/contact) or email **Taiwojohnson1989@gmail.com**.
+
+## Technology
+
+The live portfolio is built with TanStack Start, React, TypeScript and Tailwind CSS, with Lovable Cloud powering the contact form and AI identification experience.
+
+---
+
+**Live portfolio:** [tjohnson-tech.lovable.app](https://tjohnson-tech.lovable.app/)
